@@ -14,6 +14,8 @@ import android.support.v4.app.FragmentActivity;
 import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+
+import java.util.ArrayList;
 import java.util.Calendar;
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
@@ -35,6 +37,7 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.maps.android.ui.IconGenerator;
 //import com.google.maps.android.ui.IconGenerator;
@@ -48,23 +51,18 @@ public class RecordWorkoutActivity extends AppCompatActivity implements OnMapRea
 //    private static final LatLng TIMES_SQUARE = new LatLng(40.7577, -73.9857);
 //    private static final LatLng BROOKLYN_BRIDGE = new LatLng(40.7057, -73.9964);
 
+    private float counter = 0;
+
     LocationRequest mLocationRequest;
     GoogleApiAvailability googleAPI = GoogleApiAvailability.getInstance();
     GoogleApiClient mGoogleApiClient;
-    Location mCurrentLocation;
+    Location mCurrentLocation, prevLocation;
     long mLastUpdateTime;
     GoogleMap googleMap;
 
     private static final String TAG = "LocationActivity";
-    private static final long INTERVAL = 1000 * 60 * 1; //1 minute
-    private static final long FASTEST_INTERVAL = 1000 * 60 * 1; // 1 minute
-
-//    private GoogleMap googleMap;
-    /**
-     * ATTENTION: This was auto-generated to implement the App Indexing API.
-     * See https://g.co/AppIndexing/AndroidStudio for more information.
-     */
-    private GoogleApiClient client;
+    private static final long INTERVAL = 1000 * 15 * 1; //1 minute
+    private static final long FASTEST_INTERVAL = 1000 * 15 * 1; // 1 minute
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,11 +84,6 @@ public class RecordWorkoutActivity extends AppCompatActivity implements OnMapRea
 
 //        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
 //        mapFragment.getMapAsync(this);
-
-        //AIzaSyCbL6GHfzFFMDj_DP0H_GHIFwo4MeGEWyQ
-        // ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
-//        client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
     }
 
     private boolean isGooglePlayServicesAvailable() {
@@ -156,51 +149,26 @@ public class RecordWorkoutActivity extends AppCompatActivity implements OnMapRea
 //        System.out.println("In onMapReady");
     }
 
-    /**
-     * ATTENTION: This was auto-generated to implement the App Indexing API.
-     * See https://g.co/AppIndexing/AndroidStudio for more information.
-     */
-    public Action getIndexApiAction() {
-        Thing object = new Thing.Builder()
-                .setName("RecordWorkout Page") // TODO: Define a title for the content shown.
-                // TODO: Make sure this auto-generated URL is correct.
-                .setUrl(Uri.parse("http://[ENTER-YOUR-URL-HERE]"))
-                .build();
-        return new Action.Builder(Action.TYPE_VIEW)
-                .setObject(object)
-                .setActionStatus(Action.STATUS_TYPE_COMPLETED)
-                .build();
-    }
 
     @Override
     public void onStart() {
         super.onStart();
-        Log.d(TAG, "onStart fired ..............");
+        Log.i(TAG, "onStart fired ..............");
         mGoogleApiClient.connect();
-
-        // ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
-//        client.connect();
-//        AppIndex.AppIndexApi.start(client, getIndexApiAction());
     }
 
     @Override
     public void onStop() {
         super.onStop();
         super.onStop();
-        Log.d(TAG, "onStop fired ..............");
+        Log.i(TAG, "onStop fired ..............");
         mGoogleApiClient.disconnect();
-        Log.d(TAG, "isConnected ...............: " + mGoogleApiClient.isConnected());
-
-        // ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
-//        AppIndex.AppIndexApi.end(client, getIndexApiAction());
-//        client.disconnect();
+        Log.i(TAG, "isConnected ...............: " + mGoogleApiClient.isConnected());
     }
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
-        Log.d(TAG, "onConnected - isConnected ...............: " + mGoogleApiClient.isConnected());
+        Log.i(TAG, "onConnected - isConnected ...............: " + mGoogleApiClient.isConnected());
         startLocationUpdates();
     }
 
@@ -209,48 +177,63 @@ public class RecordWorkoutActivity extends AppCompatActivity implements OnMapRea
             ActivityCompat.requestPermissions(this,
                     new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.ACCESS_COARSE_LOCATION},
                     PackageManager.PERMISSION_GRANTED);
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
             return;
         }
         PendingResult<Status> pendingResult = LocationServices.FusedLocationApi.requestLocationUpdates(
                 mGoogleApiClient, mLocationRequest, this);
-        Log.d(TAG, "Location update started ..............: ");
+        Log.i(TAG, "Location update started ..............: ");
     }
 
     @Override
     public void onConnectionSuspended(int i) {
-
     }
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-        Log.d(TAG, "Connection failed: " + connectionResult.toString());
+        Log.i(TAG, "Connection failed: " + connectionResult.toString());
     }
+
+    private ArrayList<LatLng> points = new ArrayList<>(); //added
+    Polyline line; //added
 
     @Override
     public void onLocationChanged(Location location) {
-        Log.d(TAG, "Firing onLocationChanged..............................................");
+//        prevLocation = mCurrentLocation!=null ? mCurrentLocation : location;
         mCurrentLocation = location;
-        mLastUpdateTime = Calendar.getInstance().getTimeInMillis();
-        addMarker();
+//        mLastUpdateTime = Calendar.getInstance().getTimeInMillis();
+        if(counter == 0) addMarker();
+
+        LatLng latLng = new LatLng(location.getLatitude()-counter, location.getLongitude()); //you already have this
+        counter += 0.02;
+        points.add(latLng); //added
+        Log.i(TAG, "Firing onLocationChanged..............................................");
+
+        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng,
+                13));
+        redrawLine(); //added
+    }
+
+    private void redrawLine(){
+
+        googleMap.clear();  //clears all Markers and Polylines
+
+        PolylineOptions options = new PolylineOptions().width(5).color(Color.BLUE).geodesic(true);
+//        options.add()
+        for (int i = 0; i < points.size(); i++) {
+            LatLng point = points.get(i);
+            options.add(point);
+        }
+//        addMarker(); //add Marker in current position
+        line = googleMap.addPolyline(options); //add Polyline
     }
 
     private void addMarker() {
         MarkerOptions options = new MarkerOptions();
 
-        // following four lines requires 'Google Maps Android API Utility Library'
-        // https://developers.google.com/maps/documentation/android/utility/
-        // I have used this to display the time as title for location markers
-        // you can safely comment the following four lines but for this info
         IconGenerator iconFactory = new IconGenerator(this);
         iconFactory.setStyle(IconGenerator.STYLE_PURPLE);
         options.icon(BitmapDescriptorFactory.fromBitmap(iconFactory.makeIcon(Long.toString(mLastUpdateTime))));
+        options.icon(BitmapDescriptorFactory.fromBitmap(iconFactory.makeIcon(String.valueOf(counter))));
         options.anchor(iconFactory.getAnchorU(), iconFactory.getAnchorV());
 
         LatLng currentLatLng = new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude());
@@ -258,12 +241,15 @@ public class RecordWorkoutActivity extends AppCompatActivity implements OnMapRea
         Marker mapMarker = googleMap.addMarker(options);
         long atTime = mCurrentLocation.getTime();
         mLastUpdateTime =  Calendar.getInstance().getTimeInMillis();//DateFormat.getTimeInstance().format(new Date(atTime));
-//        mapMarker.setTitle("hello");
-        mapMarker.setTitle(Long.toString(mLastUpdateTime));
-        Log.d(TAG, "Marker added.............................");
+        mapMarker.setTitle(String.valueOf(counter)); counter++;
+        Log.i(TAG, "Marker added............................." + counter);
         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng,
                 13));
-        Log.d(TAG, "Zoom done.............................");
+//        googleMap.addPolyline((new PolylineOptions())
+//                        .add(TIMES_SQUARE, BROOKLYN_BRIDGE, LOWER_MANHATTAN,
+//                                TIMES_SQUARE).width(5).color(Color.BLUE)
+//                        .geodesic(true));
+        Log.i(TAG, "Zoom done.............................");
     }
 
     @Override
@@ -275,7 +261,7 @@ public class RecordWorkoutActivity extends AppCompatActivity implements OnMapRea
     protected void stopLocationUpdates() {
         LocationServices.FusedLocationApi.removeLocationUpdates(
                 mGoogleApiClient, this);
-        Log.d(TAG, "Location update stopped .......................");
+        Log.i(TAG, "Location update stopped .......................");
     }
 
     @Override
@@ -283,7 +269,7 @@ public class RecordWorkoutActivity extends AppCompatActivity implements OnMapRea
         super.onResume();
         if (mGoogleApiClient.isConnected()) {
             startLocationUpdates();
-            Log.d(TAG, "Location update resumed .....................");
+            Log.i(TAG, "Location update resumed .....................");
         }
     }
 }

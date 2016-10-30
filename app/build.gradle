@@ -5,8 +5,8 @@ android {
     buildToolsVersion "24.0.3"
     defaultConfig {
         applicationId "com.dhiviyad.workoutapp"
-        minSdkVersion 11
-        targetSdkVersion 24
+        minSdkVersion 15
+        targetSdkVersion 21
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
