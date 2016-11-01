@@ -40,8 +40,8 @@ public class WorkoutRemoteService extends Service implements LocationListener,
         GoogleApiClient.OnConnectionFailedListener {
 
     private static final String TAG = "WorkoutRemoteService";
-    private static final long INTERVAL = 1000 * 5 * 1; // 15 s
-    private static final long FASTEST_INTERVAL = 1000 * 5 * 1; // 15 s
+    private static final long INTERVAL = 1000 * 2 * 1; // 15 s
+    private static final long FASTEST_INTERVAL = 1000 * 2 * 1; // 15 s
 
     IWorkoutAidlInterface.Stub mBinder;
     LocationRequest mLocationRequest;
