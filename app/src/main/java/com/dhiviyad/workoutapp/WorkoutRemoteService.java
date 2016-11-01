@@ -47,7 +47,7 @@ public class WorkoutRemoteService extends Service implements LocationListener,
     LocationRequest mLocationRequest;
     GoogleApiAvailability googleAPI = GoogleApiAvailability.getInstance();
     GoogleApiClient mGoogleApiClient;
-    Location startLocation = null, currentLocation = null;
+//    Location startLocation = null, currentLocation = null;
     boolean recordingWorkout;
     WorkoutLocationPoints locationPoints;
 
@@ -94,31 +94,28 @@ public class WorkoutRemoteService extends Service implements LocationListener,
     private float counter = 0;//todo: remove this later
     @Override
     public void onLocationChanged(Location location) {
+
         Toast.makeText(this, "Firing onLocationChanged => " + recordingWorkout, Toast.LENGTH_LONG).show();
         Log.i(TAG, "Firing onLocationChanged...");
-        currentLocation = location;
 
-//        Intent i = new Intent();
-//        i.setAction(IntentFilterNames.LOCATION_RECEIVED);
-//        sendBroadcast(i);
+        double latitude = location.getLatitude() - counter;
+        double longitude = location.getLongitude();
+        counter += 0.002; //todo: remove later
+
+        Intent i = new Intent();
+        i.setAction(IntentFilterNames.LOCATION_RECEIVED);
 
         if(recordingWorkout == true) {
-
-//            if(startLocation == null) startLocation = currentLocation;
-//            LatLng latLng = new LatLng(currentLocation.getLatitude()-counter, currentLocation.getLongitude());
-            double latitude = currentLocation.getLatitude() - counter;
-            double longitude = currentLocation.getLongitude();
-            counter += 0.002;
+            if(locationPoints == null) locationPoints = new WorkoutLocationPoints();
             locationPoints.add(latitude, longitude);
-            Intent i2 = new Intent();
-            i2.setAction(IntentFilterNames.LOCATION_RECEIVED);
-            i2.putExtra(IntentFilterNames.LOCATION_DATA, locationPoints);
-            sendBroadcast(i2);
-            //todo: broadcast to plot
+            i.putExtra(IntentFilterNames.LOCATION_DATA, locationPoints);
 
         } else {
-
+            WorkoutLocationPoints pointsList = new WorkoutLocationPoints();
+            pointsList.add(latitude, longitude);
+            i.putExtra(IntentFilterNames.LOCATION_DATA, pointsList);
         }
+        sendBroadcast(i);
     }
 
     private void initAIDLBinder() {
@@ -129,13 +126,12 @@ public class WorkoutRemoteService extends Service implements LocationListener,
             @Override
             public void startWorkout() {
                 recordingWorkout = true;
-                locationPoints = new WorkoutLocationPoints();
             }
             @Override
             public void stopWorkout() {
                 recordingWorkout = false;
-                startLocation = null;
                 //todo: save activity data
+                locationPoints = null;
             }
             @Override
             public boolean getWorkoutState(){
