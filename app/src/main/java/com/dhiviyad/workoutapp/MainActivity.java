@@ -168,7 +168,7 @@ public class MainActivity extends AppCompatActivity  {
     }
 
     public void toggleWorkout(View v) throws RemoteException {
-        Log.i(TAG, "Clicked button");
+//        Log.i(TAG, "Clicked toggleWorkout button");
         Button b = (Button) findViewById(R.id.workout_toggle_button);
         String buttonStr =  b.getText().toString().toLowerCase();
         if(buttonStr.equals("start workout")){
@@ -179,5 +179,10 @@ public class MainActivity extends AppCompatActivity  {
             remoteService.stopWorkout();
         }
         b.setText(buttonStr);
+    }
+
+    public void showProfilePage(View v){
+        Log.i(TAG, "Clicked showProfilePage button");
+        startActivity(new Intent(MainActivity.this, UserProfileActivity.class));
     }
 }

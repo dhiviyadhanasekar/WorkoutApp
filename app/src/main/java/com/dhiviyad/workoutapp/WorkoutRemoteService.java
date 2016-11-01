@@ -45,9 +45,8 @@ public class WorkoutRemoteService extends Service implements LocationListener,
 
     IWorkoutAidlInterface.Stub mBinder;
     LocationRequest mLocationRequest;
-    GoogleApiAvailability googleAPI = GoogleApiAvailability.getInstance();
     GoogleApiClient mGoogleApiClient;
-//    Location startLocation = null, currentLocation = null;
+
     boolean recordingWorkout;
     WorkoutLocationPoints locationPoints;
 
@@ -125,6 +124,7 @@ public class WorkoutRemoteService extends Service implements LocationListener,
 
             @Override
             public void startWorkout() {
+                locationPoints = new WorkoutLocationPoints();
                 recordingWorkout = true;
             }
             @Override
@@ -141,6 +141,7 @@ public class WorkoutRemoteService extends Service implements LocationListener,
     }
 
     private void initLocationService() {
+        GoogleApiAvailability googleAPI = GoogleApiAvailability.getInstance();
         int status = googleAPI.isGooglePlayServicesAvailable(this);
         if(ConnectionResult.SUCCESS != status) {
             Log.e(TAG, "GooglePlayServicesAvailable = false. ");

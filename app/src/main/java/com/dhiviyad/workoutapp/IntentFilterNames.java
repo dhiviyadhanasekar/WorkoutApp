@@ -10,4 +10,5 @@ public class IntentFilterNames {
 //    public static final String SINGLE_RECEIVED = "com.dhiviyad.workoutapp.TEST_RECEIVED";
 
     public static final String LOCATION_DATA = "LOCATION_DATA";
+    public static final String DISTANCE_UNIT = "KM";
 }

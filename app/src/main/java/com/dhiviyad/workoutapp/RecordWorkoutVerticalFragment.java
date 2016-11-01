@@ -32,7 +32,6 @@ public class RecordWorkoutVerticalFragment extends Fragment implements OnMapRead
     private final static int DARK_GREEN = Color.rgb(0, 102, 0);
     View fragmentView;
     GoogleMap googleMap;
-//    PolylineOptions options = new PolylineOptions().width(10).color(Color.RED).geodesic(true);
 
     public RecordWorkoutVerticalFragment() {
     }

@@ -28,7 +28,9 @@
         app:srcCompat="@drawable/user_icon1"
         android:id="@+id/imageView2"
         tools:background="?attr/colorControlHighlight"
-        android:layout_marginRight="15dp" />
+        android:layout_marginRight="15dp"
+        android:onClick="showProfilePage"
+        android:clickable="true" />
 
     </LinearLayout>
 

@@ -4,7 +4,7 @@
     package="com.dhiviyad.workoutapp">
 
     <uses-sdk
-        android:minSdkVersion="11"
+        android:minSdkVersion="17"
         android:targetSdkVersion="21" />
 
     <permission
