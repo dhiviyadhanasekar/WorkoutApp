@@ -29,6 +29,7 @@ import java.util.ArrayList;
 public class RecordWorkoutVerticalFragment extends Fragment implements OnMapReadyCallback {
 
     private final static String TAG = "VerticalFragment";
+    private final static int DARK_GREEN = Color.rgb(0, 102, 0);
     View fragmentView;
     GoogleMap googleMap;
 //    PolylineOptions options = new PolylineOptions().width(10).color(Color.RED).geodesic(true);
@@ -137,7 +138,6 @@ public class RecordWorkoutVerticalFragment extends Fragment implements OnMapRead
                 options.add(latLng);
             }
             googleMap.addPolyline(options); //add Polyline
-            int DARK_GREEN = Color.argb(1, 0, 102, 0);
             googleMap.addCircle(new CircleOptions()
                     .center(new LatLng(endPoint.getLatitude(), endPoint.getLongitude())) //end location
                     .radius(7)
