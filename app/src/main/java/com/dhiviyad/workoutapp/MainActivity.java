@@ -70,13 +70,10 @@ public class MainActivity extends AppCompatActivity  {
     }
 
     class MyBroadcastReceiver extends BroadcastReceiver {
-        public MyBroadcastReceiver() {
-        }
+        public MyBroadcastReceiver() {}
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            // TODO: This method is called when the BroadcastReceiver is receiving
-            // an Intent broadcast.
             Toast.makeText(context, "Intent detected => " + intent.getAction() , Toast.LENGTH_SHORT).show();
         }
     }
@@ -138,8 +135,8 @@ public class MainActivity extends AppCompatActivity  {
 
     private void registerBroadCastReceivers(){
         broadcastReceivers = new ArrayList<MyBroadcastReceiver>();
-        createBroadcaseReceiver(IntentFilterNames.LOCATION_RECEIVED);
-        createBroadcaseReceiver(IntentFilterNames.TEST_RECEIVED);
+//        createBroadcaseReceiver(IntentFilterNames.LOCATION_RECEIVED);
+//        createBroadcaseReceiver(IntentFilterNames.TEST_RECEIVED);
     }
 
     private void createBroadcaseReceiver(String intentName){

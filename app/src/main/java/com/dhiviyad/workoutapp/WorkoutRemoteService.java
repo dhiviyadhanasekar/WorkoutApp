@@ -20,6 +20,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.dhiviyad.workoutapp.serializable.WorkoutLocationPoints;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -33,7 +34,6 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
-
 
 public class WorkoutRemoteService extends Service implements LocationListener,
         GoogleApiClient.ConnectionCallbacks,
@@ -49,37 +49,104 @@ public class WorkoutRemoteService extends Service implements LocationListener,
     GoogleApiClient mGoogleApiClient;
     Location startLocation = null, currentLocation = null;
     boolean recordingWorkout;
+    WorkoutLocationPoints locationPoints;
 
-
-    public WorkoutRemoteService() {
-        Log.v(TAG, "initing remote service");
-    }
+    public WorkoutRemoteService() { }
 
     @Override
     public void onCreate(){
         super.onCreate();
         Log.v(TAG, "Remote service onCreate called");
         Toast.makeText(this, "remote service created", Toast.LENGTH_LONG).show();
+        initAIDLBinder();
+        initLocationService();
+    }
 
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+        stopLocationUpdates();
+        mGoogleApiClient.disconnect();
+        //todo: save data
+        Log.v(TAG, "Remote service onDestroy called");
+        Toast.makeText(this, "remote service stopped", Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public IBinder onBind(Intent intent) { return mBinder; }
+
+    /************************************************
+        LOCATION OVERRIDES
+     ************************************************/
+    @Override
+    public void onConnected(Bundle bundle) {
+        Log.i(TAG, "onConnected - isConnected .... " + mGoogleApiClient.isConnected());
+        startLocationUpdates();
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) { Log.e(TAG, "Connection suspended: " + i);}
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) { Log.e(TAG, "Connection failed: " + connectionResult.toString()); }
+
+
+    private float counter = 0;//todo: remove this later
+    @Override
+    public void onLocationChanged(Location location) {
+        Toast.makeText(this, "Firing onLocationChanged => " + recordingWorkout, Toast.LENGTH_LONG).show();
+        Log.i(TAG, "Firing onLocationChanged...");
+        currentLocation = location;
+
+//        Intent i = new Intent();
+//        i.setAction(IntentFilterNames.LOCATION_RECEIVED);
+//        sendBroadcast(i);
+
+        if(recordingWorkout == true) {
+
+//            if(startLocation == null) startLocation = currentLocation;
+//            LatLng latLng = new LatLng(currentLocation.getLatitude()-counter, currentLocation.getLongitude());
+            double latitude = currentLocation.getLatitude() - counter;
+            double longitude = currentLocation.getLongitude();
+            counter += 0.002;
+            locationPoints.add(latitude, longitude);
+            Intent i2 = new Intent();
+            i2.setAction(IntentFilterNames.LOCATION_RECEIVED);
+            i2.putExtra(IntentFilterNames.LOCATION_DATA, locationPoints);
+            sendBroadcast(i2);
+            //todo: broadcast to plot
+
+        } else {
+
+        }
+    }
+
+    private void initAIDLBinder() {
         mBinder = new IWorkoutAidlInterface.Stub() {
             @Override
             public void basicTypes(int anInt, long aLong, boolean aBoolean, float aFloat, double aDouble, String aString) throws RemoteException {}
+
             @Override
             public void startWorkout() {
                 recordingWorkout = true;
+                locationPoints = new WorkoutLocationPoints();
             }
             @Override
             public void stopWorkout() {
                 recordingWorkout = false;
                 startLocation = null;
+                //todo: save activity data
             }
             @Override
             public boolean getWorkoutState(){
                 return recordingWorkout;
             }
         };
+    }
 
-        if(isGooglePlayServicesAvailable() == false) {
+    private void initLocationService() {
+        int status = googleAPI.isGooglePlayServicesAvailable(this);
+        if(ConnectionResult.SUCCESS != status) {
             Log.e(TAG, "GooglePlayServicesAvailable = false. ");
             return;
         }
@@ -90,7 +157,6 @@ public class WorkoutRemoteService extends Service implements LocationListener,
                 .addOnConnectionFailedListener(this)
                 .build();
         mGoogleApiClient.connect();
-
     }
 
     protected void createLocationRequest() {
@@ -100,43 +166,9 @@ public class WorkoutRemoteService extends Service implements LocationListener,
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
     }
 
-    private boolean isGooglePlayServicesAvailable() {
-        int status = googleAPI.isGooglePlayServicesAvailable(this);
-        if (ConnectionResult.SUCCESS == status) {
-            return true;
-        } else {
-//            googleAPI.getErrorDialog(this, status, 0).show();//getErrorDialog(status, this, 0).show();
-            return false;
-        }
-    }
-
-
-
-    @Override
-    public void onDestroy(){
-        super.onDestroy();
-        stopLocationUpdates();
-        mGoogleApiClient.disconnect();
-        Log.v(TAG, "Remote service onDestroy called");
-        Toast.makeText(this, "remote service stopped", Toast.LENGTH_LONG).show();
-    }
-
-    @Override
-    public IBinder onBind(Intent intent) {
-        return mBinder;
-    }
-
-    @Override
-    public void onConnected(@Nullable Bundle bundle) {
-        Log.i(TAG, "onConnected - isConnected ...............: " + mGoogleApiClient.isConnected());
-        startLocationUpdates();
-    }
     protected void startLocationUpdates() {
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-//            ActivityCompat.requestPermissions(this,
-//                    new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.ACCESS_COARSE_LOCATION},
-//                    PackageManager.PERMISSION_GRANTED);
             Toast.makeText(this, "location permission needed!!!", Toast.LENGTH_LONG).show();
             Log.e(TAG, "Location permission not given!!!!!!!!");
             return;
@@ -144,40 +176,7 @@ public class WorkoutRemoteService extends Service implements LocationListener,
         LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
         Log.i(TAG, "Location update started ..............: ");
     }
-    @Override
-    public void onConnectionSuspended(int i) {
-    }
-    @Override
-    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-        Log.i(TAG, "Connection failed: " + connectionResult.toString());
-    }
 
-
-    @Override
-    public void onLocationChanged(Location location) {
-        Toast.makeText(this, "Firing onLocationChanged => " + recordingWorkout, Toast.LENGTH_LONG).show();
-        Log.i(TAG, "Firing onLocationChanged...");
-        currentLocation = location;
-
-        Intent i = new Intent();
-        i.setAction(IntentFilterNames.LOCATION_RECEIVED);
-//        sendBroadcast(i);
-
-        if(recordingWorkout == true) {
-
-            Intent i2 = new Intent();
-            i2.setAction(IntentFilterNames.TEST_RECEIVED);
-            sendBroadcast(i2);
-
-            if(startLocation == null) startLocation = currentLocation;
-            //todo: broadcast to plot
-
-        } else {
-
-        }
-
-
-    }
 
     protected void stopLocationUpdates() {
         LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
