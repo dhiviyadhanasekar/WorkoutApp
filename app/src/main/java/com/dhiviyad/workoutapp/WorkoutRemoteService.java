@@ -99,7 +99,7 @@ public class WorkoutRemoteService extends Service implements LocationListener,
 
         double latitude = location.getLatitude() - counter;
         double longitude = location.getLongitude();
-        counter += 0.002; //todo: remove later
+//        counter += 0.002; //todo: remove later
 
         Intent i = new Intent();
         i.setAction(IntentFilterNames.LOCATION_RECEIVED);
