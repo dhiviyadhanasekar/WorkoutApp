@@ -9,6 +9,7 @@ public class UserDetails {
     private String name;
     private String gender;
     private float weight;
+    private float height;
     private WorkoutHistory weeklyWorkouts;
     private WorkoutHistory allWorkouts;
 }

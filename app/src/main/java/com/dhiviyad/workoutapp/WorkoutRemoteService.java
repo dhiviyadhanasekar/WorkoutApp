@@ -9,31 +9,23 @@ import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
-import android.os.Message;
-import android.os.Messenger;
 import android.os.RemoteException;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.dhiviyad.workoutapp.database.DatabaseHelper;
 import com.dhiviyad.workoutapp.serializable.WorkoutLocationPoints;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.PendingResult;
-import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.model.CircleOptions;
-import com.google.android.gms.maps.model.LatLng;
+
 
 public class WorkoutRemoteService extends Service implements LocationListener,
         GoogleApiClient.ConnectionCallbacks,
@@ -47,6 +39,8 @@ public class WorkoutRemoteService extends Service implements LocationListener,
     LocationRequest mLocationRequest;
     GoogleApiClient mGoogleApiClient;
 
+    DatabaseHelper db;
+
     boolean recordingWorkout;
     WorkoutLocationPoints locationPoints;
 
@@ -59,6 +53,7 @@ public class WorkoutRemoteService extends Service implements LocationListener,
         Toast.makeText(this, "remote service created", Toast.LENGTH_LONG).show();
         initAIDLBinder();
         initLocationService();
+        createDB();
     }
 
     @Override
@@ -115,6 +110,11 @@ public class WorkoutRemoteService extends Service implements LocationListener,
             i.putExtra(IntentFilterNames.LOCATION_DATA, pointsList);
         }
         sendBroadcast(i);
+    }
+
+    private void createDB(){
+        db = new DatabaseHelper(getApplicationContext());
+//        db.insertStepCounterTable();
     }
 
     private void initAIDLBinder() {
