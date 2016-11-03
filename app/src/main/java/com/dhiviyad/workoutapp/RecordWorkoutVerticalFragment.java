@@ -65,6 +65,15 @@ public class RecordWorkoutVerticalFragment extends Fragment implements OnMapRead
         Log.v(TAG, "Fragment resumed....." + googleMap);
     }
 
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+        for(MyBroadcastReceiver br : broadcastReceivers){
+            getActivity().getApplicationContext().unregisterReceiver(br);
+        }
+        broadcastReceivers = null;
+    }
+
 
 //    /******************************************************
 //     * Service code

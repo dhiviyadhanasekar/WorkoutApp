@@ -117,7 +117,7 @@ public class WorkoutRemoteService extends Service implements LocationListener,
 
     private void createDB(){
         db = new DatabaseHelper(getApplicationContext());
-        user = db.fetchUserDetails();
+//        user = db.fetchUserDetails();
 //        Toast.makeText(this, "db user => " + user.getName() + ", " + user.getId(), Toast.LENGTH_LONG).show();
     }
 

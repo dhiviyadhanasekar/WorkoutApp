@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/actionModeSplitBackground"
+    android:paddingLeft="20dp"
+    android:paddingRight="20dp"
+    android:paddingBottom="10dp"
+    android:paddingTop="10dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="Enter New Weight:"
+        android:id="@+id/textView"
+        android:paddingTop="20dp"
+        android:textColor="@android:color/white" />
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:id="@+id/editText_weight"
+        android:hint="Enter new weight"
+        android:layout_marginBottom="20dp"
+        android:textColor="@android:color/white"
+        android:textColorHint="#80000000"
+        android:inputType="numberDecimal" />
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp">
+
+        <Button
+            android:text="Ok"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/edit_weight_ok_button"
+            android:layout_weight="1"
+            style="@android:style/Widget.Button.Small"
+            android:layout_marginRight="5dp"
+            android:onClick="okEditWeightPopup" />
+
+        <Button
+            android:text="Cancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/edit_weight_cancel_button"
+            style="@android:style/Widget.Button.Small"
+            android:layout_weight="1"
+            android:onClick="cancelEditWeightPopup" />
+    </LinearLayout>
+
+</LinearLayout>
