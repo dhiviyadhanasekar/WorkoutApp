@@ -26,6 +26,7 @@ public final class UserDetailsTable {
             UserEntry.COLUMN_WEIGHT + DatabaseFieldTypes.REAL + DatabaseFieldTypes.COMMA_SEP +
             UserEntry.COLUMN_HEIGHT + DatabaseFieldTypes.REAL + " )";
 
-    public static final java.lang.String SQL_DELETE_ENTRIES = "DROP TABLE IF EXISTS " + UserEntry.TABLE_NAME;
+    public static final java.lang.String SQL_DELETE = "DROP TABLE IF EXISTS " + UserEntry.TABLE_NAME;
+    public static final String SQL_SELECT = "SELECT * FROM "+UserEntry.TABLE_NAME;
 
 }

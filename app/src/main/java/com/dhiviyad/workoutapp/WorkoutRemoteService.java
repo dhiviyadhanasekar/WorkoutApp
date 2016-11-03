@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
@@ -17,6 +18,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.dhiviyad.workoutapp.dataLayer.UserDetails;
 import com.dhiviyad.workoutapp.database.DatabaseHelper;
 import com.dhiviyad.workoutapp.serializable.WorkoutLocationPoints;
 import com.google.android.gms.common.ConnectionResult;
@@ -40,6 +42,7 @@ public class WorkoutRemoteService extends Service implements LocationListener,
     GoogleApiClient mGoogleApiClient;
 
     DatabaseHelper db;
+    UserDetails user;
 
     boolean recordingWorkout;
     WorkoutLocationPoints locationPoints;
@@ -89,7 +92,7 @@ public class WorkoutRemoteService extends Service implements LocationListener,
     @Override
     public void onLocationChanged(Location location) {
 
-        Toast.makeText(this, "Firing onLocationChanged => " + recordingWorkout, Toast.LENGTH_LONG).show();
+//        Toast.makeText(this, "Firing onLocationChanged => " + recordingWorkout, Toast.LENGTH_LONG).show();
         Log.i(TAG, "Firing onLocationChanged...");
 
         double latitude = location.getLatitude() - counter;
@@ -114,7 +117,8 @@ public class WorkoutRemoteService extends Service implements LocationListener,
 
     private void createDB(){
         db = new DatabaseHelper(getApplicationContext());
-//        db.insertStepCounterTable();
+        user = db.fetchUserDetails();
+//        Toast.makeText(this, "db user => " + user.getName() + ", " + user.getId(), Toast.LENGTH_LONG).show();
     }
 
     private void initAIDLBinder() {

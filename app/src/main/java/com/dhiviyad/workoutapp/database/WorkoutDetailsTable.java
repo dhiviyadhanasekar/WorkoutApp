@@ -27,5 +27,5 @@ public final class WorkoutDetailsTable {
             WorkoutEntry.COLUMN_CALORIES_BURNED + DatabaseFieldTypes.REAL + DatabaseFieldTypes.COMMA_SEP+
             WorkoutEntry.COLUMN_DATE + DatabaseFieldTypes.DATE_TIME + " )";
 
-    public static final String SQL_DELETE_ENTRIES = "DROP TABLE IF EXISTS " + WorkoutEntry.TABLE_NAME;
+    public static final String SQL_DELETE = "DROP TABLE IF EXISTS " + WorkoutEntry.TABLE_NAME;
 }

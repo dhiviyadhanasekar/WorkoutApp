@@ -9,5 +9,5 @@ public final class DatabaseFieldTypes {
     public static final String INTEGER_TYPE = " INTEGER ";
     public static final String COMMA_SEP = ",";
     public static final String REAL = " REAL ";
-    public static final String DATE_TIME=" datetime ";
+    public static final String DATE_TIME=" DATETIME ";
 }
