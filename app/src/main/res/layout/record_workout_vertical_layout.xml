@@ -64,7 +64,7 @@
                 android:textAppearance="@style/TextAppearance.AppCompat.Large" />
 
             <TextView
-                android:text="KM"
+                android:text="Miles"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/textView3" />
@@ -82,18 +82,17 @@
                 android:id="@+id/textView4" />
 
             <TextView
-                android:text="00:0:00"
+                android:text="00:00:00"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/textView5"
                 android:textAppearance="@style/TextAppearance.AppCompat.Large" />
 
             <TextView
-                android:text="TextView"
+                android:text="hours"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/textView6"
-                tools:text="Minutes" />
+                android:id="@+id/textView6" />
         </LinearLayout>
     </LinearLayout>
 

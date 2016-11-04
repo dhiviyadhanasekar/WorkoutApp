@@ -16,8 +16,9 @@ public class WorkoutDetails {
 }
 
 //todo: to calculate distance:
-// Females: Your height x .413 = stride length
-// Males: Your height x .415 = stride length
+// Females: Your height x .413 = stride length (in ft)
+// Males: Your height x .415 = stride length (in ft)
+//1 ft = 0.000189394 miles
 
 //1 step's cal burnt = 28/1000 if 100lb weight
 // weight*28/1000
