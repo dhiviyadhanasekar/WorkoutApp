@@ -136,9 +136,11 @@ public class WorkoutRemoteService extends Service implements LocationListener,
     }
     @Override
     public void onSensorChanged(SensorEvent event) {
-        synchronized (this){
-            if(workout == null) workout = new WorkoutDetails(System.currentTimeMillis());
-            workout.addSteps();
+        if(event.sensor.getType() == Sensor.TYPE_STEP_DETECTOR) {
+            synchronized (this) {
+                if (workout == null) workout = new WorkoutDetails(System.currentTimeMillis());
+                workout.addSteps();
+            }
             Toast.makeText(this, "Firing onsensorchanged => " + workout.getStepsCount(), Toast.LENGTH_SHORT).show();
         }
     }
