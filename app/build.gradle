@@ -5,7 +5,7 @@ android {
     buildToolsVersion "24.0.3"
     defaultConfig {
         applicationId "com.dhiviyad.workoutapp"
-        minSdkVersion 17
+        minSdkVersion 19
         targetSdkVersion 21
         versionCode 1
         versionName "1.0"
@@ -29,6 +29,7 @@ dependencies {
     compile 'com.google.android.gms:play-services-maps:9.8.0'
     compile 'com.google.android.gms:play-services:9.8.0'
     compile 'com.google.maps.android:android-maps-utils:0.4.+'
+    compile 'com.github.PhilJay:MPAndroidChart:v3.0.0'
     testCompile 'junit:junit:4.12'
 }
 

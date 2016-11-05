@@ -109,7 +109,7 @@ public class RecordWorkoutVerticalFragment extends Fragment implements OnMapRead
         public void onReceive(Context context, Intent intent) {
 
             String action = intent.getAction();
-            Toast.makeText(context, "Intent detected => " + action, Toast.LENGTH_SHORT).show();
+//            Toast.makeText(context, "Intent detected => " + action, Toast.LENGTH_SHORT).show();
 
             switch(action){
                 case IntentFilterNames.LOCATION_RECEIVED:

@@ -1,18 +1,33 @@
 package com.dhiviyad.workoutapp.dataLayer;
 
+import java.io.Serializable;
+
 /**
  * Created by dhiviyad on 10/30/16.
  */
 
-public class WorkoutDetails {
+public class WorkoutDetails implements Serializable{
     private float distance;
     private long duration;
     private long stepsCount;
     private float maxSpeed;
     private float minSpeed;
     private float avgSpeed;
-    private double caloriesBurnt;
+    private long caloriesBurnt;
     private long workoutDate;
+
+    public WorkoutDetails(long workoutDate) {
+        this.workoutDate = workoutDate;
+        stepsCount = 0;
+    }
+
+    public long getStepsCount() {
+        return stepsCount;
+    }
+
+    public void addSteps(){
+        stepsCount++;
+    }
 }
 
 //todo: to calculate distance:
