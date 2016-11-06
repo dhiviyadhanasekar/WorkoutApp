@@ -14,4 +14,5 @@ interface IWorkoutAidlInterface {
     void startWorkout();
     void stopWorkout();
     boolean getWorkoutState();
+    void sendCurrentWorkoutData();
 }

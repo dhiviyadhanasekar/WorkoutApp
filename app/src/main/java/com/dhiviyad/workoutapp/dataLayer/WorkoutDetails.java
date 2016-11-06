@@ -35,6 +35,9 @@ public class WorkoutDetails implements Serializable{
         strideLength *= 0.00019; //in mi
         caloriePerStep = (user.getWeight() * 28/10000)/100;
         workoutCount = 1;
+        duration = 0;
+        distance = 0;
+        caloriesBurnt =0;
     }
 
     public long getStepsCount() { return stepsCount; }

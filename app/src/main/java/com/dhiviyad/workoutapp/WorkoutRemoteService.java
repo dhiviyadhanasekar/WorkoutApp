@@ -152,7 +152,7 @@ public class WorkoutRemoteService extends Service implements LocationListener,
     }
 
     private void sendDistanceBroadcast(float dist) {
-        String val = String.format("%.3f", dist) ;
+        String val = StringUtils.getFormattedDistance(dist) ;
         Intent i = new Intent();
         i.setAction(IntentFilterNames.DISTANCE_RECIEVED);
         i.putExtra(IntentFilterNames.DISTANCE_DATA, val);
@@ -188,6 +188,8 @@ public class WorkoutRemoteService extends Service implements LocationListener,
             public boolean getWorkoutState(){
                 return recordingWorkout;
             }
+            @Override
+            public void sendCurrentWorkoutData(){ if(recordingWorkout) sendWorkoutBroadcast(workout); }
         };
     }
 

@@ -133,6 +133,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     public long saveWorkout(WorkoutDetails w){
+        if(w == null) return -1;
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(WorkoutDetailsTable.WorkoutEntry.COLUMN_CALORIES_BURNED, w.getCaloriesBurnt());
