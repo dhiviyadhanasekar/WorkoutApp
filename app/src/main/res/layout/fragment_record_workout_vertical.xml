@@ -2,7 +2,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.dhiviyad.workoutapp.RecordWorkoutVerticalFragment">
+    tools:context="com.dhiviyad.workoutapp.RecordWorkoutVerticalFragment"
+    android:paddingTop="10dp">
 
     <include layout="@layout/record_workout_vertical_layout" />
 
