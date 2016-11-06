@@ -9,6 +9,7 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.dhiviyad.workoutapp.dataLayer.UserDetails;
+import com.dhiviyad.workoutapp.dataLayer.WorkoutDetails;
 
 /**
  * Created by dhiviyad on 11/1/16.
@@ -17,7 +18,7 @@ import com.dhiviyad.workoutapp.dataLayer.UserDetails;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "AlphaWorkouts";
-    public static final int DATABASE_VERSION = 1;
+    public static final int DATABASE_VERSION = 2;
 
 
     public DatabaseHelper(Context context){
@@ -129,5 +130,39 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
         cursor.close();
         return u;
+    }
+
+    public long saveWorkout(WorkoutDetails w){
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(WorkoutDetailsTable.WorkoutEntry.COLUMN_CALORIES_BURNED, w.getCaloriesBurnt());
+        values.put(WorkoutDetailsTable.WorkoutEntry.COLUMN_DISTANCE, w.getDistance());
+        values.put(WorkoutDetailsTable.WorkoutEntry.COLUMN_TIME, w.getDuration());
+
+        // Insert the new row, returning the primary key value of the new row
+        long newRowId = db.insert(WorkoutDetailsTable.WorkoutEntry.TABLE_NAME, null, values);
+        Log.i("Workout row created => ", "id is" + newRowId );
+        return newRowId;
+    }
+
+    public WorkoutDetails getTotalWorkout(){
+        WorkoutDetails w = new WorkoutDetails();
+        String query = "SELECT SUM(" + WorkoutDetailsTable.WorkoutEntry.COLUMN_DISTANCE + ") AS " + WorkoutDetailsTable.WorkoutEntry.COLUMN_DISTANCE
+                + DatabaseFieldTypes.COMMA_SEP
+                + " SUM(" + WorkoutDetailsTable.WorkoutEntry.COLUMN_CALORIES_BURNED + ") AS " + WorkoutDetailsTable.WorkoutEntry.COLUMN_CALORIES_BURNED
+                + DatabaseFieldTypes.COMMA_SEP
+                + " SUM(" + WorkoutDetailsTable.WorkoutEntry.COLUMN_TIME + ") AS " + WorkoutDetailsTable.WorkoutEntry.COLUMN_TIME
+                + DatabaseFieldTypes.COMMA_SEP
+                + " COUNT(*) AS ROWS_COUNT FROM " + WorkoutDetailsTable.WorkoutEntry.TABLE_NAME ;
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(query, null);
+        if(cursor.moveToFirst()){
+            long rowCount = cursor.getInt( cursor.getColumnIndex("ROWS_COUNT") );
+            w.setWorkoutCount(rowCount);
+            w.setDistance( cursor.getFloat( cursor.getColumnIndex(WorkoutDetailsTable.WorkoutEntry.COLUMN_DISTANCE )));
+            w.setCaloriesBurnt( cursor.getInt(cursor.getColumnIndex(WorkoutDetailsTable.WorkoutEntry.COLUMN_CALORIES_BURNED)) );
+            w.setDuration(cursor.getLong(cursor.getColumnIndex(WorkoutDetailsTable.WorkoutEntry.COLUMN_TIME)));
+        }
+        return w;
     }
 }

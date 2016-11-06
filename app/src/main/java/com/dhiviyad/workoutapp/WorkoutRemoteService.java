@@ -56,17 +56,18 @@ public class WorkoutRemoteService extends Service implements LocationListener,
     @Override
     public void onCreate(){
         super.onCreate();
+        createStepSensor();
         Log.v(TAG, "Remote service onCreate called");
         Toast.makeText(this, "remote service created", Toast.LENGTH_LONG).show();
         initAIDLBinder();
         initLocationService();
         createDB();
-        createStepSensor();
     }
 
     @Override
     public void onDestroy(){
         super.onDestroy();
+        if(recordingWorkout == true) db.saveWorkout(workout);
         stopLocationUpdates();
         mGoogleApiClient.disconnect();
         //todo: save data
@@ -86,13 +87,10 @@ public class WorkoutRemoteService extends Service implements LocationListener,
         Log.i(TAG, "onConnected - isConnected .... " + mGoogleApiClient.isConnected());
         startLocationUpdates();
     }
-
     @Override
     public void onConnectionSuspended(int i) { Log.e(TAG, "Connection suspended: " + i);}
-
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) { Log.e(TAG, "Connection failed: " + connectionResult.toString()); }
-
 
     private float counter = 0;//todo: remove this later
     @Override
@@ -127,10 +125,30 @@ public class WorkoutRemoteService extends Service implements LocationListener,
             synchronized (this) {
                 if (workout == null) workout = new WorkoutDetails(System.currentTimeMillis(), db.fetchUserDetails());
                 workout.addSteps();
-                sendDistanceBroadcast( workout.getDistance() );
+                sendWorkoutBroadcast(workout);
             }
             Toast.makeText(this, "Firing onsensorchanged => " + workout.getStepsCount() + " => " + workout.getDistance(), Toast.LENGTH_SHORT).show();
         }
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+    }
+
+    private void createStepSensor(){
+        sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        Sensor mSensor = sensorManager.getDefaultSensor( Sensor.TYPE_STEP_DETECTOR );
+        sensorManager.registerListener(this, mSensor, SensorManager.SENSOR_DELAY_FASTEST);
+    }
+
+    private void sendWorkoutBroadcast(WorkoutDetails workout) {
+        float dist = workout.getDistance();
+        sendDistanceBroadcast(dist);
+        Intent i;
+        i = new Intent();
+        i.setAction(IntentFilterNames.WORKOUT_RECIEVED);
+        i.putExtra(IntentFilterNames.WORKOUT_DATA,  workout);
+        sendBroadcast(i);
     }
 
     private void sendDistanceBroadcast(float dist) {
@@ -139,17 +157,6 @@ public class WorkoutRemoteService extends Service implements LocationListener,
         i.setAction(IntentFilterNames.DISTANCE_RECIEVED);
         i.putExtra(IntentFilterNames.DISTANCE_DATA, val);
         sendBroadcast(i);
-    }
-
-    @Override
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {
-    }
-
-
-    private void createStepSensor(){
-        sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-        Sensor mSensor = sensorManager.getDefaultSensor( Sensor.TYPE_STEP_DETECTOR );
-        sensorManager.registerListener(this, mSensor, SensorManager.SENSOR_DELAY_FASTEST);
     }
 
     private void createDB(){
@@ -174,7 +181,8 @@ public class WorkoutRemoteService extends Service implements LocationListener,
                 recordingWorkout = false;
                 locationPoints = null;
                 sendDistanceBroadcast(0);
-                //todo: save activity data
+                db.saveWorkout(workout);
+                workout = null;
             }
             @Override
             public boolean getWorkoutState(){

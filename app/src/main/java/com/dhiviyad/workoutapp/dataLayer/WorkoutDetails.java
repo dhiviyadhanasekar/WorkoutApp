@@ -7,14 +7,24 @@ import java.io.Serializable;
  */
 
 public class WorkoutDetails implements Serializable{
+
     private float distance;
     private long duration;
-    private long stepsCount;
     private long caloriesBurnt;
     private long startTime;
 
-    private double strideLength;
+    private long stepsCount;
+    private long workoutCount;
+
     private double caloriePerStep;
+    private double strideLength;
+
+    public WorkoutDetails(){
+        workoutCount = 0;
+        distance = 0;
+        duration = 0;
+        caloriesBurnt = 0;
+    }
 
     public WorkoutDetails(long startTime, UserDetails user) {
         this.startTime = startTime;
@@ -24,20 +34,30 @@ public class WorkoutDetails implements Serializable{
         } else strideLength = user.getHeight() * 0.415;
         strideLength *= 0.00019; //in mi
         caloriePerStep = (user.getWeight() * 28/10000)/100;
-
+        workoutCount = 1;
     }
 
-    public long getStepsCount() {
-        return stepsCount;
+    public long getStepsCount() { return stepsCount; }
+    public float getDistance() { return distance; }
+    public long getDuration() { return duration; }
+    public long getCaloriesBurnt() { return caloriesBurnt; }
+    public long getWorkoutCount() { return workoutCount; }
+    public void setWorkoutCount(long workoutCount) { this.workoutCount = workoutCount; }
+    public void setDistance(float distance) {
+        this.distance = distance;
     }
-    public float getDistance() {
-        return distance;
+    public void setDuration(long duration) {
+        this.duration = duration;
+    }
+    public void setCaloriesBurnt(long caloriesBurnt) {
+        this.caloriesBurnt = caloriesBurnt;
     }
 
     public void addSteps(){
         stepsCount++;
         distance = (float) (stepsCount * strideLength);
         caloriesBurnt = (long)(stepsCount * caloriePerStep);
+        duration  = System.currentTimeMillis() - startTime;
     }
 }
 

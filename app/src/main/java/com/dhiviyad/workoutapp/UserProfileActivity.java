@@ -1,6 +1,9 @@
 package com.dhiviyad.workoutapp;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Gravity;
@@ -10,13 +13,19 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.PopupWindow;
 import android.widget.RadioGroup;
+import android.widget.Toast;
 
 import com.dhiviyad.workoutapp.dataLayer.UserDetails;
+import com.dhiviyad.workoutapp.dataLayer.WorkoutDetails;
 import com.dhiviyad.workoutapp.database.DatabaseHelper;
+import com.dhiviyad.workoutapp.serializable.WorkoutLocationPoints;
+
+import java.util.ArrayList;
 
 public class UserProfileActivity extends AppCompatActivity {
 
     UserDetails user;
+    WorkoutDetails totalWorkouts;
     PopupWindow editUsernamePopup = null;
     PopupWindow editWeightPopup = null;
     PopupWindow editHeightPopup = null;
@@ -28,6 +37,14 @@ public class UserProfileActivity extends AppCompatActivity {
         setContentView(R.layout.activity_user_profile);
 
         db = new DatabaseHelper(getApplicationContext());
+        updateUserDetails();
+
+        totalWorkouts = db.getTotalWorkout();
+        Toast.makeText(this, "Total workout count => " + totalWorkouts.getWorkoutCount() + " => " +totalWorkouts.getDistance(), Toast.LENGTH_SHORT).show();
+        registerBroadCastReceivers();
+    }
+
+    private void updateUserDetails() {
         user = db.fetchUserDetails();
         Button b = (Button) findViewById(R.id.username_btn);
         b.setText(user.getName());
@@ -50,6 +67,15 @@ public class UserProfileActivity extends AppCompatActivity {
                 db.updateUserDetails(user, user.getId());
             }
         });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        for(MyBroadcastReceiver br : broadcastReceivers){
+            getApplicationContext().unregisterReceiver(br);
+        }
+        broadcastReceivers = null;
     }
 
     public void showUsernamePopup(View v){
@@ -131,5 +157,35 @@ public class UserProfileActivity extends AppCompatActivity {
         b.setText(weightStr);
         db.updateUserDetails(user, user.getId());
         editHeightPopup.dismiss();
+    }
+
+    /******************************************************
+     * Broadcast service code
+     ******************************************************/
+    ArrayList<MyBroadcastReceiver> broadcastReceivers;
+    class MyBroadcastReceiver extends BroadcastReceiver {
+        public MyBroadcastReceiver() {}
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+            String action = intent.getAction();
+
+            switch(action){
+
+
+                default: break;
+            }
+        }
+    }
+    private void registerBroadCastReceivers(){
+        broadcastReceivers = new ArrayList<MyBroadcastReceiver>();
+        createBroadcaseReceiver(IntentFilterNames.WORKOUT_RECIEVED);
+    }
+
+    private void createBroadcaseReceiver(String intentName){
+        MyBroadcastReceiver r = new MyBroadcastReceiver();
+        getApplicationContext().registerReceiver(r, new IntentFilter(intentName));
+        broadcastReceivers.add(r);
     }
 }

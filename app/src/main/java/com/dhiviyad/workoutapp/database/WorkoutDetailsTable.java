@@ -2,6 +2,8 @@ package com.dhiviyad.workoutapp.database;
 
 import android.provider.BaseColumns;
 
+import com.dhiviyad.workoutapp.dataLayer.WorkoutDetails;
+
 /**
  * Created by dhiviyad on 11/1/16.
  */
@@ -25,7 +27,8 @@ public final class WorkoutDetailsTable {
             WorkoutEntry.COLUMN_DISTANCE + DatabaseFieldTypes.REAL + DatabaseFieldTypes.COMMA_SEP +
             WorkoutEntry.COLUMN_TIME + DatabaseFieldTypes.INTEGER_TYPE + DatabaseFieldTypes.COMMA_SEP+
             WorkoutEntry.COLUMN_CALORIES_BURNED + DatabaseFieldTypes.REAL + DatabaseFieldTypes.COMMA_SEP+
-            WorkoutEntry.COLUMN_DATE + DatabaseFieldTypes.DATE_TIME + " )";
+            WorkoutEntry.COLUMN_DATE + DatabaseFieldTypes.DATE_TIME + "DEFAULT CURRENT_DATE )";
 
     public static final String SQL_DELETE = "DROP TABLE IF EXISTS " + WorkoutEntry.TABLE_NAME;
+
 }
