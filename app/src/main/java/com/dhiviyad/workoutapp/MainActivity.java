@@ -37,6 +37,9 @@ public class MainActivity extends AppCompatActivity  {
     ArrayList<MyBroadcastReceiver> broadcastReceivers;
     RemoteConnection remoteConnection;
     boolean isBound = false;
+    Fragment horizontalFragment = new RecordWorkoutHorizontalFragment();
+    Fragment verticalFragment = new RecordWorkoutVerticalFragment();
+
 
     class RemoteConnection implements ServiceConnection {
 
@@ -107,10 +110,11 @@ public class MainActivity extends AppCompatActivity  {
         Configuration config = getResources().getConfiguration();
 
         if (config.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            contentFragment = new RecordWorkoutHorizontalFragment();
+            contentFragment = horizontalFragment;
         } else {
-            contentFragment = new RecordWorkoutVerticalFragment();
+            contentFragment = verticalFragment;
         }
+        contentFragment.setRetainInstance(true);
 
         fragmentTransaction.replace(R.id.fragment_placeholder, contentFragment);
         fragmentTransaction.commit();
@@ -124,7 +128,7 @@ public class MainActivity extends AppCompatActivity  {
             getApplicationContext().unregisterReceiver(br);
         }
         broadcastReceivers = null;
-        if(isBound) getApplicationContext().unbindService(remoteConnection);
+//        if(isBound) getApplicationContext().unbindService(remoteConnection);
     }
 
 //    @Override

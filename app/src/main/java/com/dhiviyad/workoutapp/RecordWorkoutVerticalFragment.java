@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.dhiviyad.workoutapp.serializable.LocationPoint;
@@ -22,6 +23,7 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.android.gms.vision.text.Text;
 
 import java.util.ArrayList;
 
@@ -117,9 +119,20 @@ public class RecordWorkoutVerticalFragment extends Fragment implements OnMapRead
                     drawWorkout(pointsList);
                     break;
 
+                case IntentFilterNames.DISTANCE_RECIEVED:
+                    String distanceData = (String) intent.getStringExtra(IntentFilterNames.DISTANCE_DATA);
+//                    Toast.makeText(context, "distance received => " + distanceData, Toast.LENGTH_SHORT).show();
+                    updateDistance(distanceData);
+                    break;
+
                 default: break;
             }
         }
+    }
+
+    private void updateDistance(String distanceData) {
+        TextView distTextView = (TextView) fragmentView.findViewById(R.id.distance_label);
+        distTextView.setText(distanceData);
     }
 
     private void drawWorkout(WorkoutLocationPoints pointsList){
@@ -165,7 +178,7 @@ public class RecordWorkoutVerticalFragment extends Fragment implements OnMapRead
     private void registerBroadCastReceivers(){
         broadcastReceivers = new ArrayList<MyBroadcastReceiver>();
         createBroadcaseReceiver(IntentFilterNames.LOCATION_RECEIVED);
-//        createBroadcaseReceiver(IntentFilterNames.TEST_RECEIVED);
+        createBroadcaseReceiver(IntentFilterNames.DISTANCE_RECIEVED);
     }
 
     private void createBroadcaseReceiver(String intentName){
