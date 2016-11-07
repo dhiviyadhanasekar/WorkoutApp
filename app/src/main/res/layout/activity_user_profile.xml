@@ -182,7 +182,7 @@
                 android:text="2.6 mi"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/textView13"
+                android:id="@+id/weekly_distance"
                 android:layout_weight="1"
                 android:textAlignment="viewEnd" />
         </LinearLayout>
@@ -206,7 +206,7 @@
                 android:text="1h 2m 5s"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/textView17"
+                android:id="@+id/weekly_duration"
                 android:layout_weight="1"
                 android:textAlignment="viewEnd" />
         </LinearLayout>
@@ -230,7 +230,7 @@
                 android:text="2 times"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/textView19"
+                android:id="@+id/weekly_workouts"
                 android:layout_weight="1"
                 android:textAlignment="viewEnd" />
         </LinearLayout>
@@ -254,7 +254,7 @@
                 android:text="100 cal"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/textView21"
+                android:id="@+id/weekly_calories"
                 android:layout_weight="1"
                 android:textAlignment="viewEnd" />
         </LinearLayout>

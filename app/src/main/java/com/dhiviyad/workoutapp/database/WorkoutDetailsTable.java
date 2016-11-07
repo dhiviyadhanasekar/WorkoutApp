@@ -30,5 +30,14 @@ public final class WorkoutDetailsTable {
             WorkoutEntry.COLUMN_DATE + DatabaseFieldTypes.DATE_TIME + "DEFAULT CURRENT_DATE )";
 
     public static final String SQL_DELETE = "DROP TABLE IF EXISTS " + WorkoutEntry.TABLE_NAME;
+    public static final String SQL_SELECT_ALL = "SELECT SUM(" + WorkoutDetailsTable.WorkoutEntry.COLUMN_DISTANCE + ") AS " + WorkoutDetailsTable.WorkoutEntry.COLUMN_DISTANCE
+            + DatabaseFieldTypes.COMMA_SEP
+            + " SUM(" + WorkoutDetailsTable.WorkoutEntry.COLUMN_CALORIES_BURNED + ") AS " + WorkoutDetailsTable.WorkoutEntry.COLUMN_CALORIES_BURNED
+            + DatabaseFieldTypes.COMMA_SEP
+            + " SUM(" + WorkoutDetailsTable.WorkoutEntry.COLUMN_TIME + ") AS " + WorkoutDetailsTable.WorkoutEntry.COLUMN_TIME
+            + DatabaseFieldTypes.COMMA_SEP
+            + " COUNT(*) AS ROWS_COUNT FROM " + WorkoutDetailsTable.WorkoutEntry.TABLE_NAME;
+
+    public static final String SQL_SELECT_WEEKLY = SQL_SELECT_ALL + " WHERE  strftime('%W', " +WorkoutEntry.COLUMN_DATE + ") = strftime('%W', 'now')";
 
 }

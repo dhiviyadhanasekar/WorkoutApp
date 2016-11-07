@@ -148,13 +148,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public WorkoutDetails getTotalWorkout(){
         WorkoutDetails w = new WorkoutDetails();
-        String query = "SELECT SUM(" + WorkoutDetailsTable.WorkoutEntry.COLUMN_DISTANCE + ") AS " + WorkoutDetailsTable.WorkoutEntry.COLUMN_DISTANCE
-                + DatabaseFieldTypes.COMMA_SEP
-                + " SUM(" + WorkoutDetailsTable.WorkoutEntry.COLUMN_CALORIES_BURNED + ") AS " + WorkoutDetailsTable.WorkoutEntry.COLUMN_CALORIES_BURNED
-                + DatabaseFieldTypes.COMMA_SEP
-                + " SUM(" + WorkoutDetailsTable.WorkoutEntry.COLUMN_TIME + ") AS " + WorkoutDetailsTable.WorkoutEntry.COLUMN_TIME
-                + DatabaseFieldTypes.COMMA_SEP
-                + " COUNT(*) AS ROWS_COUNT FROM " + WorkoutDetailsTable.WorkoutEntry.TABLE_NAME ;
+        String query = WorkoutDetailsTable.SQL_SELECT_ALL ;
+        return executeWorkoutSelectQuery(w, query);
+    }
+
+    private WorkoutDetails executeWorkoutSelectQuery(WorkoutDetails w, String query) {
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(query, null);
         if(cursor.moveToFirst()){
@@ -165,5 +163,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             w.setDuration(cursor.getLong(cursor.getColumnIndex(WorkoutDetailsTable.WorkoutEntry.COLUMN_TIME)));
         }
         return w;
+    }
+
+    public WorkoutDetails getWeeklyWorkout(){
+        WorkoutDetails w = new WorkoutDetails();
+        String query = WorkoutDetailsTable.SQL_SELECT_ALL ;
+        return executeWorkoutSelectQuery(w, WorkoutDetailsTable.SQL_SELECT_WEEKLY);
     }
 }

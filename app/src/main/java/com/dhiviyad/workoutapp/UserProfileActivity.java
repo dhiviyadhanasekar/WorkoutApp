@@ -30,7 +30,7 @@ import java.util.ArrayList;
 public class UserProfileActivity extends AppCompatActivity {
 
     UserDetails user;
-    WorkoutDetails totalWorkouts;
+    WorkoutDetails totalWorkouts, weeklyWorkouts;
     PopupWindow editUsernamePopup = null;
     PopupWindow editWeightPopup = null;
     PopupWindow editHeightPopup = null;
@@ -46,10 +46,26 @@ public class UserProfileActivity extends AppCompatActivity {
 
         totalWorkouts = db.getTotalWorkout();
         setTotalWorkoutData(new WorkoutDetails());
-//        Toast.makeText(this, "Total workout count => " + totalWorkouts.getWorkoutCount() + " => " +totalWorkouts.getDistance(), Toast.LENGTH_SHORT).show();
+
+        weeklyWorkouts = db.getWeeklyWorkout();
+        setWeeklyWorkoutData(new WorkoutDetails());
+        Toast.makeText(this, "Total workout count => " + weeklyWorkouts.getWorkoutCount() + " => " +weeklyWorkouts.getDistance(), Toast.LENGTH_SHORT).show();
         bindService();
         registerBroadCastReceivers();
     }
+
+    public void setWeeklyWorkoutData(WorkoutDetails currentWorkout) {
+        TextView totalTextView = (TextView) findViewById(R.id.weekly_distance);
+        totalTextView.setText(StringUtils.getFormattedDistance(weeklyWorkouts.getDistance() + currentWorkout.getDistance()) + " mi");
+        totalTextView = (TextView) findViewById(R.id.weekly_duration);
+        long duration = (weeklyWorkouts.getDuration() + currentWorkout.getDuration() / 1000);
+        totalTextView.setText(StringUtils.getFormattedTime(duration));
+        totalTextView = (TextView) findViewById(R.id.weekly_workouts);
+        totalTextView.setText((weeklyWorkouts.getWorkoutCount() + currentWorkout.getWorkoutCount()) + " times");
+        totalTextView = (TextView) findViewById(R.id.weekly_calories);
+        totalTextView.setText(StringUtils.getFormattedDistance(weeklyWorkouts.getCaloriesBurnt() + currentWorkout.getCaloriesBurnt()) + " cal");
+    }
+
 
     private void setTotalWorkoutData(WorkoutDetails currentWorkout) {
         TextView totalTextView = (TextView) findViewById(R.id.all_time_distance);
@@ -180,6 +196,7 @@ public class UserProfileActivity extends AppCompatActivity {
      ******************************************************/
     ArrayList<MyBroadcastReceiver> broadcastReceivers;
 
+
     class MyBroadcastReceiver extends BroadcastReceiver {
 
         public MyBroadcastReceiver() {
@@ -193,7 +210,7 @@ public class UserProfileActivity extends AppCompatActivity {
                 case IntentFilterNames.WORKOUT_RECIEVED:
                     WorkoutDetails d = (WorkoutDetails) intent.getSerializableExtra(IntentFilterNames.WORKOUT_DATA);
                     setTotalWorkoutData(d);
-                    //todo: set weekly workoutdata too
+                    setWeeklyWorkoutData(d);
                     break;
 
                 default:
