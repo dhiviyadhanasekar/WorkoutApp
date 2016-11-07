@@ -1,5 +1,8 @@
 package com.dhiviyad.workoutapp;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -7,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.charts.LineChart;
@@ -47,4 +51,5 @@ public class RecordWorkoutHorizontalFragment extends Fragment {
 //            entries.add(new Entry(data.getValueX(), data.getValueY()));
 //        }
     }
+
 }

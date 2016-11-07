@@ -18,7 +18,7 @@ import com.dhiviyad.workoutapp.dataLayer.WorkoutDetails;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "AlphaWorkouts";
-    public static final int DATABASE_VERSION = 2;
+    public static final int DATABASE_VERSION = 1;
 
 
     public DatabaseHelper(Context context){
@@ -161,7 +161,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             long rowCount = cursor.getInt( cursor.getColumnIndex("ROWS_COUNT") );
             w.setWorkoutCount(rowCount);
             w.setDistance( cursor.getFloat( cursor.getColumnIndex(WorkoutDetailsTable.WorkoutEntry.COLUMN_DISTANCE )));
-            w.setCaloriesBurnt( cursor.getInt(cursor.getColumnIndex(WorkoutDetailsTable.WorkoutEntry.COLUMN_CALORIES_BURNED)) );
+            w.setCaloriesBurnt( cursor.getFloat(cursor.getColumnIndex(WorkoutDetailsTable.WorkoutEntry.COLUMN_CALORIES_BURNED)) );
             w.setDuration(cursor.getLong(cursor.getColumnIndex(WorkoutDetailsTable.WorkoutEntry.COLUMN_TIME)));
         }
         return w;

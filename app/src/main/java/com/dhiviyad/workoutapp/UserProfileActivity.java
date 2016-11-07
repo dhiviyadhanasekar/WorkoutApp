@@ -24,8 +24,6 @@ import android.widget.Toast;
 import com.dhiviyad.workoutapp.dataLayer.UserDetails;
 import com.dhiviyad.workoutapp.dataLayer.WorkoutDetails;
 import com.dhiviyad.workoutapp.database.DatabaseHelper;
-import com.dhiviyad.workoutapp.serializable.WorkoutLocationPoints;
-import com.google.android.gms.vision.text.Text;
 
 import java.util.ArrayList;
 
@@ -57,11 +55,12 @@ public class UserProfileActivity extends AppCompatActivity {
         TextView totalTextView = (TextView) findViewById(R.id.all_time_distance);
         totalTextView.setText(StringUtils.getFormattedDistance(totalWorkouts.getDistance() + currentWorkout.getDistance()) + " mi");
         totalTextView = (TextView) findViewById(R.id.all_time_duration);
-        totalTextView.setText((totalWorkouts.getDuration() + currentWorkout.getDuration() / 1000) + " s");
+        long duration = (totalWorkouts.getDuration() + currentWorkout.getDuration() / 1000);
+        totalTextView.setText(StringUtils.getFormattedTime(duration));
         totalTextView = (TextView) findViewById(R.id.all_time_workouts);
         totalTextView.setText((totalWorkouts.getWorkoutCount() + currentWorkout.getWorkoutCount()) + " times");
         totalTextView = (TextView) findViewById(R.id.all_time_calories);
-        totalTextView.setText((totalWorkouts.getCaloriesBurnt() + currentWorkout.getCaloriesBurnt()) + " cal");
+        totalTextView.setText(StringUtils.getFormattedDistance(totalWorkouts.getCaloriesBurnt() + currentWorkout.getCaloriesBurnt()) + " cal");
     }
 
     private void updateUserDetails() {
@@ -92,10 +91,7 @@ public class UserProfileActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        for (MyBroadcastReceiver br : broadcastReceivers) {
-            getApplicationContext().unregisterReceiver(br);
-        }
-        broadcastReceivers = null;
+        unregisterReceiver();
     }
 
     public void showUsernamePopup(View v) {
@@ -185,9 +181,9 @@ public class UserProfileActivity extends AppCompatActivity {
     ArrayList<MyBroadcastReceiver> broadcastReceivers;
 
     class MyBroadcastReceiver extends BroadcastReceiver {
+
         public MyBroadcastReceiver() {
         }
-
         @Override
         public void onReceive(Context context, Intent intent) {
 
@@ -204,6 +200,14 @@ public class UserProfileActivity extends AppCompatActivity {
                     break;
             }
         }
+
+    }
+
+    private void unregisterReceiver() {
+        for (MyBroadcastReceiver br : broadcastReceivers) {
+            getApplicationContext().unregisterReceiver(br);
+        }
+        broadcastReceivers = null;
     }
 
     private void registerBroadCastReceivers() {

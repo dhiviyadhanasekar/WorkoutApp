@@ -123,13 +123,11 @@ public class MainActivity extends AppCompatActivity  {
 
     @Override
     public void onDestroy(){
-        super.onDestroy();
-        for(MyBroadcastReceiver br : broadcastReceivers){
-            getApplicationContext().unregisterReceiver(br);
-        }
-        broadcastReceivers = null;
+        unregisterBroadcaseReceivers();
 //        if(isBound) getApplicationContext().unbindService(remoteConnection);
     }
+
+
 
 //    @Override
 //    public void onPause(){
@@ -147,6 +145,14 @@ public class MainActivity extends AppCompatActivity  {
         MyBroadcastReceiver r = new MyBroadcastReceiver();
         getApplicationContext().registerReceiver(r, new IntentFilter(intentName));
         broadcastReceivers.add(r);
+    }
+
+    private void unregisterBroadcaseReceivers() {
+        super.onDestroy();
+        for(MyBroadcastReceiver br : broadcastReceivers){
+            getApplicationContext().unregisterReceiver(br);
+        }
+        broadcastReceivers = null;
     }
 
     private void bindService() {

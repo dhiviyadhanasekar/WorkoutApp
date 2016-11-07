@@ -1,5 +1,7 @@
 package com.dhiviyad.workoutapp;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -12,7 +14,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.dhiviyad.workoutapp.serializable.LocationPoint;
 import com.dhiviyad.workoutapp.serializable.WorkoutLocationPoints;
@@ -23,9 +24,11 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.PolylineOptions;
-import com.google.android.gms.vision.text.Text;
 
 import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
+
+import static android.content.Context.ALARM_SERVICE;
 
 
 public class RecordWorkoutVerticalFragment extends Fragment implements OnMapReadyCallback {
@@ -70,35 +73,9 @@ public class RecordWorkoutVerticalFragment extends Fragment implements OnMapRead
     @Override
     public void onDestroy(){
         super.onDestroy();
-        for(MyBroadcastReceiver br : broadcastReceivers){
-            getActivity().getApplicationContext().unregisterReceiver(br);
-        }
-        broadcastReceivers = null;
+        unregisterBroadcastReceivers();
     }
 
-
-//    /******************************************************
-//     * Service code
-//     ******************************************************/
-//    IWorkoutAidlInterface remoteService;
-//    RemoteConnection remoteConnection = null;
-//
-//    class RemoteConnection implements ServiceConnection {
-//
-//        @Override
-//        public void onServiceConnected(ComponentName name, IBinder service) {
-//            remoteService = IWorkoutAidlInterface.Stub.asInterface((IBinder) service);
-//            Log.v(TAG, "remote service connected");
-////            Toast.makeText(MainActivity.this, "remote service connected", Toast.LENGTH_LONG).show();
-//        }
-//
-//        @Override
-//        public void onServiceDisconnected(ComponentName componentName) {
-//            remoteService = null;
-////            Toast.makeText(MainActivity.this, "remote service disconnected", Toast.LENGTH_LONG).show();
-//            Log.v(TAG, "remote service disconnected");
-//        }
-//    }
 
     /******************************************************
      * Broadcast service code
@@ -125,9 +102,39 @@ public class RecordWorkoutVerticalFragment extends Fragment implements OnMapRead
                     updateDistance(distanceData);
                     break;
 
+                case IntentFilterNames.TIME_RECEIVED:
+                    String timeData = (String) intent.getStringExtra(IntentFilterNames.TIME_DATA);
+                    updateDuration(timeData);
+                    break;
+
                 default: break;
             }
         }
+    }
+
+    private void registerBroadCastReceivers(){
+        broadcastReceivers = new ArrayList<MyBroadcastReceiver>();
+        createBroadcaseReceiver(IntentFilterNames.LOCATION_RECEIVED);
+        createBroadcaseReceiver(IntentFilterNames.DISTANCE_RECIEVED);
+        createBroadcaseReceiver(IntentFilterNames.TIME_RECEIVED);
+    }
+
+    private void createBroadcaseReceiver(String intentName){
+        MyBroadcastReceiver r = new MyBroadcastReceiver();
+        getActivity().getApplicationContext().registerReceiver(r, new IntentFilter(intentName));
+        broadcastReceivers.add(r);
+    }
+
+    private void unregisterBroadcastReceivers() {
+        for(MyBroadcastReceiver br : broadcastReceivers){
+            getActivity().getApplicationContext().unregisterReceiver(br);
+        }
+        broadcastReceivers = null;
+    }
+
+    private void updateDuration(String curTime){
+        TextView durationView = (TextView) fragmentView.findViewById(R.id.duration_timer);
+        durationView.setText( curTime );
     }
 
     private void updateDistance(String distanceData) {
@@ -175,16 +182,6 @@ public class RecordWorkoutVerticalFragment extends Fragment implements OnMapRead
                 (float) 17));
     }
 
-    private void registerBroadCastReceivers(){
-        broadcastReceivers = new ArrayList<MyBroadcastReceiver>();
-        createBroadcaseReceiver(IntentFilterNames.LOCATION_RECEIVED);
-        createBroadcaseReceiver(IntentFilterNames.DISTANCE_RECIEVED);
-    }
 
-    private void createBroadcaseReceiver(String intentName){
-        MyBroadcastReceiver r = new MyBroadcastReceiver();
-        getActivity().getApplicationContext().registerReceiver(r, new IntentFilter(intentName));
-        broadcastReceivers.add(r);
-    }
 
 }

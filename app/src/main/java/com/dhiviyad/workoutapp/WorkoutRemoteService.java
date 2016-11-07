@@ -1,8 +1,12 @@
 package com.dhiviyad.workoutapp;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -17,7 +21,6 @@ import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.dhiviyad.workoutapp.dataLayer.UserDetails;
 import com.dhiviyad.workoutapp.dataLayer.WorkoutDetails;
 import com.dhiviyad.workoutapp.database.DatabaseHelper;
 import com.dhiviyad.workoutapp.serializable.WorkoutLocationPoints;
@@ -27,6 +30,9 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+
+import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 
 
 public class WorkoutRemoteService extends Service implements LocationListener,
@@ -40,6 +46,7 @@ public class WorkoutRemoteService extends Service implements LocationListener,
     LocationRequest mLocationRequest;
     GoogleApiClient mGoogleApiClient;
     private SensorManager sensorManager;
+    PendingIntent pendingIntent;
 
     DatabaseHelper db;
 
@@ -56,12 +63,14 @@ public class WorkoutRemoteService extends Service implements LocationListener,
     @Override
     public void onCreate(){
         super.onCreate();
+        recordingWorkout = false;
         createStepSensor();
         Log.v(TAG, "Remote service onCreate called");
         Toast.makeText(this, "remote service created", Toast.LENGTH_LONG).show();
         initAIDLBinder();
         initLocationService();
         createDB();
+        registerBroadCastReceivers();
     }
 
     @Override
@@ -74,6 +83,7 @@ public class WorkoutRemoteService extends Service implements LocationListener,
         Log.v(TAG, "Remote service onDestroy called");
         Toast.makeText(this, "remote service stopped", Toast.LENGTH_LONG).show();
         sensorManager.unregisterListener(this);
+        unregisterBroadcastReceivers();
     }
 
     @Override
@@ -91,6 +101,7 @@ public class WorkoutRemoteService extends Service implements LocationListener,
     public void onConnectionSuspended(int i) { Log.e(TAG, "Connection suspended: " + i);}
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) { Log.e(TAG, "Connection failed: " + connectionResult.toString()); }
+
 
     private float counter = 0;//todo: remove this later
     @Override
@@ -122,18 +133,92 @@ public class WorkoutRemoteService extends Service implements LocationListener,
     @Override
     public void onSensorChanged(SensorEvent event) {
         if(recordingWorkout == true && event.sensor.getType() == Sensor.TYPE_STEP_DETECTOR) {
-            synchronized (this) {
+//            synchronized (this) {
                 if (workout == null) workout = new WorkoutDetails(System.currentTimeMillis(), db.fetchUserDetails());
                 workout.addSteps();
                 sendWorkoutBroadcast(workout);
-            }
-            Toast.makeText(this, "Firing onsensorchanged => " + workout.getStepsCount() + " => " + workout.getDistance(), Toast.LENGTH_SHORT).show();
+//            }
+            Toast.makeText(this, "Firing onsensorchanged => " + workout.getStepsCount() + " => cal " + workout.getCaloriesBurnt() + " => dist "
+                    + workout.getDistance() , Toast.LENGTH_SHORT).show();
         }
     }
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
     }
+
+
+    /******************************************************
+     * Broadcast service code
+     ******************************************************/
+    ArrayList<MyBroadcastReceiver> broadcastReceivers;
+    class MyBroadcastReceiver extends BroadcastReceiver {
+        public MyBroadcastReceiver() {}
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            switch(action){
+
+                case IntentFilterNames.SECOND_TIMER_RECEIVED:
+                    handleSecondsTimer();
+                    break;
+
+                default: break;
+            }
+        }
+    }
+
+    private void registerBroadCastReceivers(){
+        broadcastReceivers = new ArrayList<MyBroadcastReceiver>();
+        createBroadcaseReceiver(IntentFilterNames.SECOND_TIMER_RECEIVED);
+        createNextAlarm();
+    }
+
+    private void createBroadcaseReceiver(String intentName){
+        MyBroadcastReceiver r = new MyBroadcastReceiver();
+        getApplicationContext().registerReceiver(r, new IntentFilter(intentName));
+        broadcastReceivers.add(r);
+    }
+
+    private void unregisterBroadcastReceivers() {
+        for(MyBroadcastReceiver br : broadcastReceivers){
+            getApplicationContext().unregisterReceiver(br);
+        }
+        broadcastReceivers = null;
+    }
+
+    private void createNextAlarm() {
+        Intent intent = new Intent(IntentFilterNames.SECOND_TIMER_RECEIVED);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_ONE_SHOT);
+        AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+        alarmManager.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + (1000), pendingIntent);
+    }
+
+    private void handleSecondsTimer(){
+        if(recordingWorkout == true){
+            long curTime = System.currentTimeMillis();
+            long millis = workout.getStartTime() - curTime;
+            String timetext =  String.format("%02d:%02d:%02d", TimeUnit.MILLISECONDS.toHours(millis),
+                            Math.abs(TimeUnit.MILLISECONDS.toMinutes(millis) - TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(millis))),
+                            Math.abs(TimeUnit.MILLISECONDS.toSeconds(millis) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis)))
+            );
+            sendSecondsBroadcast(timetext);
+            workout.updateDuration(curTime);
+        }
+        createNextAlarm();
+    }
+
+    private void sendSecondsBroadcast(String timetext) {
+        Intent i = new Intent();
+        i.setAction(IntentFilterNames.TIME_RECEIVED);
+        i.putExtra(IntentFilterNames.TIME_DATA,  timetext);
+        sendBroadcast(i);
+    }
+
+    /********************************************
+     * END OF BROADCAST RECEIVERS
+     ********************************************/
 
     private void createStepSensor(){
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
@@ -171,18 +256,11 @@ public class WorkoutRemoteService extends Service implements LocationListener,
 
             @Override
             public void startWorkout() {
-                workoutStartTime = System.currentTimeMillis();
-                if(locationPoints==null) locationPoints = new WorkoutLocationPoints();
-                workout = new WorkoutDetails(workoutStartTime, db.fetchUserDetails());
-                recordingWorkout = true;
+                onStartWorkout();
             }
             @Override
             public void stopWorkout() {
-                recordingWorkout = false;
-                locationPoints = null;
-                sendDistanceBroadcast(0);
-                db.saveWorkout(workout);
-                workout = null;
+               onStopWorkout();
             }
             @Override
             public boolean getWorkoutState(){
@@ -191,6 +269,22 @@ public class WorkoutRemoteService extends Service implements LocationListener,
             @Override
             public void sendCurrentWorkoutData(){ if(recordingWorkout) sendWorkoutBroadcast(workout); }
         };
+    }
+
+    private void onStartWorkout() {
+        workoutStartTime = System.currentTimeMillis();
+        if(locationPoints==null) locationPoints = new WorkoutLocationPoints();
+        workout = new WorkoutDetails(workoutStartTime, db.fetchUserDetails());
+        recordingWorkout = true;
+    }
+
+    private void onStopWorkout(){
+        recordingWorkout = false;
+        db.saveWorkout(workout);
+        locationPoints = null;
+        sendDistanceBroadcast(0);
+        sendSecondsBroadcast("00:00:00");
+        workout = null;
     }
 
     private void initLocationService() {

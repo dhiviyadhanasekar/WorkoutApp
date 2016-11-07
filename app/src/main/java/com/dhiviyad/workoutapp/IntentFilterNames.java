@@ -14,4 +14,8 @@ public class IntentFilterNames {
 
     public static final String WORKOUT_RECIEVED = "com.dhiviyad.workoutapp.WORKOUT_RECIEVED";
     public static final String WORKOUT_DATA = "WORKOUT_DATA";
+
+    public static final String TIME_RECEIVED = "com.dhiviyad.workoutapp.TIME_RECEIVED";
+    public static final String TIME_DATA ="TIME_DATA";
+    public static final String SECOND_TIMER_RECEIVED = "com.dhiviyad.workoutapp.SECOND_TIMER_RECEIVED";
 }

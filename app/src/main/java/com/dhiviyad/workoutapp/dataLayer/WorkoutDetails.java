@@ -10,7 +10,7 @@ public class WorkoutDetails implements Serializable{
 
     private float distance;
     private long duration;
-    private long caloriesBurnt;
+    private float caloriesBurnt;
     private long startTime;
 
     private long stepsCount;
@@ -40,10 +40,11 @@ public class WorkoutDetails implements Serializable{
         caloriesBurnt =0;
     }
 
+    public long getStartTime() { return startTime; }
     public long getStepsCount() { return stepsCount; }
     public float getDistance() { return distance; }
     public long getDuration() { return duration; }
-    public long getCaloriesBurnt() { return caloriesBurnt; }
+    public float getCaloriesBurnt() { return caloriesBurnt; }
     public long getWorkoutCount() { return workoutCount; }
     public void setWorkoutCount(long workoutCount) { this.workoutCount = workoutCount; }
     public void setDistance(float distance) {
@@ -52,15 +53,19 @@ public class WorkoutDetails implements Serializable{
     public void setDuration(long duration) {
         this.duration = duration;
     }
-    public void setCaloriesBurnt(long caloriesBurnt) {
+    public void setCaloriesBurnt(float caloriesBurnt) {
         this.caloriesBurnt = caloriesBurnt;
     }
 
     public void addSteps(){
         stepsCount++;
         distance = (float) (stepsCount * strideLength);
-        caloriesBurnt = (long)(stepsCount * caloriePerStep);
-        duration  = System.currentTimeMillis() - startTime;
+        caloriesBurnt = (float)(stepsCount * caloriePerStep);
+//        duration  = System.currentTimeMillis() - startTime;
+    }
+
+    public void updateDuration(long curTime){
+        duration  = curTime - startTime;
     }
 }
 
