@@ -40,23 +40,17 @@ public class WorkoutRemoteService extends Service implements LocationListener,
 
     private static final String TAG = "WorkoutRemoteService";
     private static final long INTERVAL = 1000 * 2 * 1; // 15 s
-    private static final long FASTEST_INTERVAL = 1000 * 2 * 1; // 15 s
+    private static final long FASTEST_INTERVAL = 1000 * 1 * 1; // 15 s
 
     IWorkoutAidlInterface.Stub mBinder;
     LocationRequest mLocationRequest;
     GoogleApiClient mGoogleApiClient;
     private SensorManager sensorManager;
-    PendingIntent pendingIntent;
-
     DatabaseHelper db;
 
     boolean recordingWorkout;
     WorkoutLocationPoints locationPoints;
-
     WorkoutDetails workout;
-    long workoutStartTime; //in ms
-    long workoutEndTime; //in ms
-
 
     public WorkoutRemoteService() { }
 
@@ -253,26 +247,36 @@ public class WorkoutRemoteService extends Service implements LocationListener,
         mBinder = new IWorkoutAidlInterface.Stub() {
             @Override
             public void basicTypes(int anInt, long aLong, boolean aBoolean, float aFloat, double aDouble, String aString) throws RemoteException {}
-
             @Override
-            public void startWorkout() {
-                onStartWorkout();
-            }
+            public void startWorkout() { onStartWorkout(); }
             @Override
-            public void stopWorkout() {
-               onStopWorkout();
-            }
+            public void stopWorkout() { onStopWorkout(); }
             @Override
             public boolean getWorkoutState(){
                 return recordingWorkout;
             }
             @Override
             public void sendCurrentWorkoutData(){ if(recordingWorkout) sendWorkoutBroadcast(workout); }
+            @Override
+            public void sendDistanceData(){
+                if(recordingWorkout) {
+                    sendDistanceBroadcast(workout.getDistance());
+                    sendInstantLocationBroadcast();
+                }
+            }
         };
     }
 
+    private void sendInstantLocationBroadcast(){
+        if(locationPoints == null) return;
+        Intent i = new Intent();
+        i.setAction(IntentFilterNames.LOCATION_RECEIVED);
+        i.putExtra(IntentFilterNames.LOCATION_DATA, locationPoints);
+        sendBroadcast(i);
+    }
+
     private void onStartWorkout() {
-        workoutStartTime = System.currentTimeMillis();
+        long workoutStartTime = System.currentTimeMillis();
         if(locationPoints==null) locationPoints = new WorkoutLocationPoints();
         workout = new WorkoutDetails(workoutStartTime, db.fetchUserDetails());
         recordingWorkout = true;

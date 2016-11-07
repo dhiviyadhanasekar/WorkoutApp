@@ -55,6 +55,7 @@ public class MainActivity extends AppCompatActivity  {
                     Toast.makeText(MainActivity.this, "recordigWorkout = " + recordingWorkout , Toast.LENGTH_LONG).show();
                     if (recordingWorkout == true) {
                         b.setText("Stop workout");
+                        remoteService.sendDistanceData();
                     } else b.setText("Start workout");
                 }
 
