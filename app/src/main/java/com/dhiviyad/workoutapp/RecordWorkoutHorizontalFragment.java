@@ -31,9 +31,12 @@ import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.formatter.IAxisValueFormatter;
+import com.github.mikephil.charting.interfaces.datasets.IBarDataSet;
 
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class RecordWorkoutHorizontalFragment extends Fragment {
 
@@ -61,18 +64,6 @@ public class RecordWorkoutHorizontalFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         fragmentView = view;
         createGraph();
-//        distanceLineChart = new LineChart(getContext());
-//        LinearLayout graphArea = (LinearLayout) fragmentView.findViewById(R.id.graph_area);
-//        graphArea.addView(distanceLineChart); // add the programmatically created chart
-
-//        //create data
-//        YourData[] dataObjects = ...;
-//        List<Entry> entries = new ArrayList<Entry>();
-//        for (YourData data : dataObjects) {
-//
-//            // turn your data into Entry objects
-//            entries.add(new Entry(data.getValueX(), data.getValueY()));
-//        }
     }
 
     protected String[] mMonths = new String[] {
@@ -163,13 +154,8 @@ public class RecordWorkoutHorizontalFragment extends Fragment {
     private BarData generateBarData() {
 
         ArrayList<BarEntry> entries1 = new ArrayList<BarEntry>();
-        ArrayList<BarEntry> entries2 = new ArrayList<BarEntry>();
-
         for (int index = 0; index < itemcount; index++) {
-            entries1.add(new BarEntry(0, getRandom(25, 25)));
-
-            // stacked
-            entries2.add(new BarEntry(0, new float[]{getRandom(13, 12), getRandom(13, 12)}));
+            entries1.add(new BarEntry(index + 0.5f, getRandom(25, 25)));
         }
 
         BarDataSet set1 = new BarDataSet(entries1, "Bar 1");
@@ -178,23 +164,9 @@ public class RecordWorkoutHorizontalFragment extends Fragment {
         set1.setValueTextSize(10f);
         set1.setAxisDependency(YAxis.AxisDependency.LEFT);
 
-        BarDataSet set2 = new BarDataSet(entries2, "");
-        set2.setStackLabels(new String[]{"Stack 1", "Stack 2"});
-        set2.setColors(new int[]{Color.rgb(61, 165, 255), Color.rgb(23, 197, 255)});
-        set2.setValueTextColor(Color.rgb(61, 165, 255));
-        set2.setValueTextSize(10f);
-        set2.setAxisDependency(YAxis.AxisDependency.LEFT);
-
-        float groupSpace = 0.06f;
-        float barSpace = 0.02f; // x2 dataset
         float barWidth = 0.45f; // x2 dataset
-        // (0.45 + 0.02) * 2 + 0.06 = 1.00 -> interval per "group"
-
-        BarData d = new BarData(set1, set2);
+        BarData d = new BarData(set1);
         d.setBarWidth(barWidth);
-
-        // make this BarData object grouped
-        d.groupBars(0, groupSpace, barSpace); // start at x = 0
 
         return d;
     }
