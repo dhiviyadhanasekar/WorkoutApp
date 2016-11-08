@@ -44,6 +44,8 @@ public class UserProfileActivity extends AppCompatActivity {
         db = new DatabaseHelper(getApplicationContext());
         updateUserDetails();
 
+//        db.gettestworkout();
+
         totalWorkouts = db.getTotalWorkout();
         setTotalWorkoutData(new WorkoutDetails());
 

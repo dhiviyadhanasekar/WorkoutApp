@@ -7,6 +7,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.support.annotation.NonNull;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.dhiviyad.workoutapp.dataLayer.UserDetails;
 import com.dhiviyad.workoutapp.dataLayer.WorkoutDetails;
@@ -18,7 +19,7 @@ import com.dhiviyad.workoutapp.dataLayer.WorkoutDetails;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "AlphaWorkouts";
-    public static final int DATABASE_VERSION = 1;
+    public static final int DATABASE_VERSION = 2;
 
 
     public DatabaseHelper(Context context){
@@ -168,6 +169,25 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public WorkoutDetails getWeeklyWorkout(){
         WorkoutDetails w = new WorkoutDetails();
         String query = WorkoutDetailsTable.SQL_SELECT_ALL ;
+        Log.i("DB", "calling weekly workout");
         return executeWorkoutSelectQuery(w, WorkoutDetailsTable.SQL_SELECT_WEEKLY);
     }
+
+//    public WorkoutDetails gettestworkout(){
+//        WorkoutDetails w = new WorkoutDetails();
+////        (strftime('%j', date(MyDate, '-3 days', 'weekday 4')) - 1) / 7 + 1
+//        String query = "SELECT " + WorkoutDetailsTable.WorkoutEntry.COLUMN_DATE
+//                + ", (strftime('%j', date(" +WorkoutDetailsTable.WorkoutEntry.COLUMN_DATE + ", '-3 days', 'weekday 4'))-1)/7+1 AS WEEK_1, strftime('%W', 'now') AS WEEK_NOW FROM "
+//                + WorkoutDetailsTable.WorkoutEntry.TABLE_NAME;
+//        SQLiteDatabase db = this.getReadableDatabase();
+//        Cursor cursor = db.rawQuery(query, null);
+//        while(cursor.moveToNext()){
+//            Log.i("DB ", "############");
+//            Log.i("DB ", "" + cursor.getString( cursor.getColumnIndex(WorkoutDetailsTable.WorkoutEntry.COLUMN_DATE)));
+//            Log.i("DB ", "" + cursor.getString( cursor.getColumnIndex("WEEK_1")));
+//            Log.i("DB ", "" + cursor.getString( cursor.getColumnIndex("WEEK_NOW")));
+//
+//        }
+//        return w;
+//    }
 }
