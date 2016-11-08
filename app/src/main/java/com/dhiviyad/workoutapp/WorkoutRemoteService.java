@@ -21,6 +21,7 @@ import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.dhiviyad.workoutapp.dataLayer.GraphDetails;
 import com.dhiviyad.workoutapp.dataLayer.WorkoutDetails;
 import com.dhiviyad.workoutapp.database.DatabaseHelper;
 import com.dhiviyad.workoutapp.serializable.WorkoutLocationPoints;
@@ -51,6 +52,7 @@ public class WorkoutRemoteService extends Service implements LocationListener,
     boolean recordingWorkout;
     WorkoutLocationPoints locationPoints;
     WorkoutDetails workout;
+    GraphDetails graphDetails;
 
     public WorkoutRemoteService() { }
 
@@ -73,7 +75,6 @@ public class WorkoutRemoteService extends Service implements LocationListener,
         if(recordingWorkout == true) db.saveWorkout(workout);
         stopLocationUpdates();
         mGoogleApiClient.disconnect();
-        //todo: save data
         Log.v(TAG, "Remote service onDestroy called");
         Toast.makeText(this, "remote service stopped", Toast.LENGTH_LONG).show();
         sensorManager.unregisterListener(this);
@@ -158,6 +159,10 @@ public class WorkoutRemoteService extends Service implements LocationListener,
                     handleSecondsTimer();
                     break;
 
+                case IntentFilterNames.MIN_TIMER_RECIEVED:
+                    handleMinutesTimer();
+                    break;
+
                 default: break;
             }
         }
@@ -166,7 +171,10 @@ public class WorkoutRemoteService extends Service implements LocationListener,
     private void registerBroadCastReceivers(){
         broadcastReceivers = new ArrayList<MyBroadcastReceiver>();
         createBroadcaseReceiver(IntentFilterNames.SECOND_TIMER_RECEIVED);
+        createBroadcaseReceiver(IntentFilterNames.MIN_TIMER_RECIEVED);
+
         createNextAlarm();
+        createMinutesAlarm();
     }
 
     private void createBroadcaseReceiver(String intentName){
@@ -189,6 +197,13 @@ public class WorkoutRemoteService extends Service implements LocationListener,
         alarmManager.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + (1000), pendingIntent);
     }
 
+    private void createMinutesAlarm(){
+        Intent intent = new Intent(IntentFilterNames.MIN_TIMER_RECIEVED);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_ONE_SHOT);
+        AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+        alarmManager.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + (60 * 1 * 1000), pendingIntent);
+    }
+
     private void handleSecondsTimer(){
         if(recordingWorkout == true){
             long curTime = System.currentTimeMillis();
@@ -201,6 +216,13 @@ public class WorkoutRemoteService extends Service implements LocationListener,
             workout.updateDuration(curTime);
         }
         createNextAlarm();
+    }
+
+    private void handleMinutesTimer(){
+        if(recordingWorkout == true){
+            //todo: send graph data
+        }
+        createMinutesAlarm();
     }
 
     private void sendSecondsBroadcast(String timetext) {
@@ -279,6 +301,7 @@ public class WorkoutRemoteService extends Service implements LocationListener,
         long workoutStartTime = System.currentTimeMillis();
         if(locationPoints==null) locationPoints = new WorkoutLocationPoints();
         workout = new WorkoutDetails(workoutStartTime, db.fetchUserDetails());
+        graphDetails = new GraphDetails();
         recordingWorkout = true;
     }
 
@@ -288,6 +311,8 @@ public class WorkoutRemoteService extends Service implements LocationListener,
         locationPoints = null;
         sendDistanceBroadcast(0);
         sendSecondsBroadcast("00:00:00");
+        //todo: send empty graph details to graph fragment
+        graphDetails = null;
         workout = null;
     }
 
