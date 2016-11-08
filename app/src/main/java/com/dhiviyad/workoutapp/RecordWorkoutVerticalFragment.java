@@ -37,6 +37,8 @@ public class RecordWorkoutVerticalFragment extends Fragment implements OnMapRead
     private final static int DARK_GREEN = Color.rgb(0, 102, 0);
     View fragmentView;
     GoogleMap googleMap;
+    WorkoutLocationPoints pointsList;
+
 
     public RecordWorkoutVerticalFragment() {
     }
@@ -62,6 +64,9 @@ public class RecordWorkoutVerticalFragment extends Fragment implements OnMapRead
     public void onMapReady(GoogleMap gMap) {
         googleMap = gMap;
         googleMap.getUiSettings().setZoomControlsEnabled(true);
+        if(pointsList != null){
+            drawWorkout(pointsList);
+        }
     }
 
     @Override
@@ -92,7 +97,7 @@ public class RecordWorkoutVerticalFragment extends Fragment implements OnMapRead
 
             switch(action){
                 case IntentFilterNames.LOCATION_RECEIVED:
-                    WorkoutLocationPoints pointsList = (WorkoutLocationPoints) intent.getSerializableExtra(IntentFilterNames.LOCATION_DATA);
+                    pointsList = (WorkoutLocationPoints) intent.getSerializableExtra(IntentFilterNames.LOCATION_DATA);
                     drawWorkout(pointsList);
                     break;
 
@@ -154,6 +159,8 @@ public class RecordWorkoutVerticalFragment extends Fragment implements OnMapRead
             Log.e(TAG, "Expecting points - no points recieved");
             return;
         }
+
+        if(googleMap == null) return;
 
         LocationPoint startPoint = points.get(0);
         LocationPoint endPoint = points.get(points.size()-1);

@@ -19,9 +19,9 @@ public class GraphDetails implements Serializable {
         caloriesEveryFiveMins = new ArrayList<>();
         distanceEveryFiveMins = new ArrayList<>();
         time = new ArrayList<>();
-        maxSpeed = 0;
-        minSpeed = 0;
-        sumSpeed = 0;
+        maxSpeed = 0.0f;
+        minSpeed = Integer.MAX_VALUE;
+        sumSpeed = 0.0f;
     }
 
     public ArrayList<Float> getCaloriesEveryFiveMins() {
@@ -49,16 +49,18 @@ public class GraphDetails implements Serializable {
     }
     public void addCurrentWorkout(WorkoutDetails w){
 
+        caloriesEveryFiveMins.add(w.getCaloriesBurnt());
         long curTime = w.getDuration();
         float dist = w.getDistance();
+        curTime = curTime/(1000 * 60); //min
 
-        caloriesEveryFiveMins.add(w.getCaloriesBurnt());
+        float speed = dist>0 ? curTime/dist: 0; //min/miles
+        if(speed > maxSpeed) maxSpeed = speed;
+        if(speed>0 && speed < minSpeed) minSpeed = speed;
+//        if(time.size() == 0) minSpeed = speed;
+        sumSpeed += speed;
+
         distanceEveryFiveMins.add(dist);
         time.add(curTime);
-
-        float speed = curTime/dist; //milliseconds/miles
-        if(speed > maxSpeed) maxSpeed = speed;
-        if(speed < minSpeed) minSpeed = speed;
-        sumSpeed += speed;
     }
 }

@@ -201,7 +201,7 @@ public class WorkoutRemoteService extends Service implements LocationListener,
         Intent intent = new Intent(IntentFilterNames.MIN_TIMER_RECIEVED);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_ONE_SHOT);
         AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
-        alarmManager.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + (60 * 1 * 1000), pendingIntent);
+        alarmManager.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + (10 * 1000), pendingIntent);
     }
 
     private void handleSecondsTimer(){
@@ -220,7 +220,7 @@ public class WorkoutRemoteService extends Service implements LocationListener,
 
     private void handleMinutesTimer(){
         if(recordingWorkout == true){
-            //todo: send graph data
+          sendCurrentGraphData();
         }
         createMinutesAlarm();
     }
@@ -286,7 +286,21 @@ public class WorkoutRemoteService extends Service implements LocationListener,
                     sendInstantLocationBroadcast();
                 }
             }
+            @Override
+            public void sendGraphData() { if(recordingWorkout) { sendCurrentGraphData(); } }
         };
+    }
+    private void sendCurrentGraphData(){
+        graphDetails.addCurrentWorkout(workout);
+        sendGraphDataBroadcast(graphDetails);
+    }
+
+    private void sendGraphDataBroadcast(GraphDetails graphData){
+        if(graphData == null) return;
+        Intent i = new Intent();
+        i.setAction(IntentFilterNames.GRAPH_DATA_RECEIVED);
+        i.putExtra(IntentFilterNames.GRAPH_DATA,graphData);
+        sendBroadcast(i);
     }
 
     private void sendInstantLocationBroadcast(){
@@ -311,7 +325,7 @@ public class WorkoutRemoteService extends Service implements LocationListener,
         locationPoints = null;
         sendDistanceBroadcast(0);
         sendSecondsBroadcast("00:00:00");
-        //todo: send empty graph details to graph fragment
+        sendGraphDataBroadcast(new GraphDetails());
         graphDetails = null;
         workout = null;
     }

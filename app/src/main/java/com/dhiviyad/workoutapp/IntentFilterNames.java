@@ -19,4 +19,7 @@ public class IntentFilterNames {
     public static final String TIME_DATA ="TIME_DATA";
     public static final String SECOND_TIMER_RECEIVED = "com.dhiviyad.workoutapp.SECOND_TIMER_RECEIVED";
     public static final String MIN_TIMER_RECIEVED = "com.dhiviyad.workoutapp.MIN_TIMER_RECIEVED";
+
+    public static final String GRAPH_DATA_RECEIVED = "com.dhiviyad.workoutapp.GRAPH_DATA_RECEIVED";
+    public static final String GRAPH_DATA = "GRAPH_DATA";
 }

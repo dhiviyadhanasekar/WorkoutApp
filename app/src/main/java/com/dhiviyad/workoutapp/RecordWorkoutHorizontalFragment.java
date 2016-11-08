@@ -1,24 +1,26 @@
 package com.dhiviyad.workoutapp;
 
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
-import com.dhiviyad.workoutapp.serializable.WorkoutLocationPoints;
-import com.github.mikephil.charting.charts.BarChart;
+import com.dhiviyad.workoutapp.dataLayer.GraphDetails;
 import com.github.mikephil.charting.charts.CombinedChart;
-import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.AxisBase;
 import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.components.XAxis;
@@ -31,12 +33,13 @@ import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.formatter.IAxisValueFormatter;
-import com.github.mikephil.charting.interfaces.datasets.IBarDataSet;
 
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import static android.content.Context.BIND_AUTO_CREATE;
 
 public class RecordWorkoutHorizontalFragment extends Fragment {
 
@@ -47,6 +50,7 @@ public class RecordWorkoutHorizontalFragment extends Fragment {
 
     private CombinedChart mChart;
     View fragmentView;
+    GraphDetails graphDetails;
 
 
     public RecordWorkoutHorizontalFragment() {
@@ -63,7 +67,32 @@ public class RecordWorkoutHorizontalFragment extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         fragmentView = view;
+        graphDetails = new GraphDetails();
+        createSpeeds();
         createGraph();
+        registerBroadCastReceivers();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        unregisterBroadcastReceivers();
+    }
+
+    private void createSpeeds(){
+        TextView speedView = (TextView) fragmentView.findViewById(R.id.avg_speed);
+        float avgSpeed = 0.0f;
+        if(graphDetails.getTime().size() > 0){
+            avgSpeed = graphDetails.getSumSpeed()/graphDetails.getTime().size();
+        }
+        speedView.setText(StringUtils.getFormattedDistance(avgSpeed));
+
+        float minSpeed = (graphDetails.getMinSpeed() == Integer.MAX_VALUE) ? 0 : graphDetails.getMinSpeed();
+        speedView =(TextView) fragmentView.findViewById(R.id.min_speed);
+        speedView.setText(StringUtils.getFormattedDistance(minSpeed));
+
+        speedView = (TextView) fragmentView.findViewById(R.id.max_speed);
+        speedView.setText(StringUtils.getFormattedDistance(graphDetails.getMaxSpeed()));
     }
 
     protected String[] mMonths = new String[] {
@@ -73,6 +102,7 @@ public class RecordWorkoutHorizontalFragment extends Fragment {
 
     private void createGraph(){
         mChart = (CombinedChart) fragmentView.findViewById(R.id.chart);
+        mChart.clear();
         mChart.getDescription().setEnabled(false);
         mChart.setBackgroundColor(Color.WHITE);
         mChart.setDrawGridBackground(false);
@@ -103,10 +133,13 @@ public class RecordWorkoutHorizontalFragment extends Fragment {
         xAxis.setPosition(XAxis.XAxisPosition.BOTH_SIDED);
         xAxis.setAxisMinimum(0f);
         xAxis.setGranularity(1f);
+        xAxis.setDrawGridLines(false);
+        final ArrayList<Long> timeData = graphDetails.getTime();
+        if(timeData.size() > 0)
         xAxis.setValueFormatter(new IAxisValueFormatter() {
             @Override
             public String getFormattedValue(float value, AxisBase axis) {
-                return mMonths[(int) value % mMonths.length];
+                return (timeData.get((int) value % timeData.size() )/1000) + "";
             }
             @Override
             public int getDecimalDigits() {
@@ -134,7 +167,7 @@ public class RecordWorkoutHorizontalFragment extends Fragment {
         for (int index = 0; index < itemcount; index++)
             entries.add(new Entry(index + 0.5f, getRandom(15, 5)));
 
-        LineDataSet set = new LineDataSet(entries, "Line DataSet");
+        LineDataSet set = new LineDataSet(entries, "Distance");
         set.setColor(Color.rgb(240, 238, 70));
         set.setLineWidth(2.5f);
         set.setCircleColor(Color.rgb(240, 238, 70));
@@ -158,7 +191,7 @@ public class RecordWorkoutHorizontalFragment extends Fragment {
             entries1.add(new BarEntry(index + 0.5f, getRandom(25, 25)));
         }
 
-        BarDataSet set1 = new BarDataSet(entries1, "Bar 1");
+        BarDataSet set1 = new BarDataSet(entries1, "Calories");
         set1.setColor(Color.rgb(60, 220, 78));
         set1.setValueTextColor(Color.rgb(60, 220, 78));
         set1.setValueTextSize(10f);
@@ -176,7 +209,6 @@ public class RecordWorkoutHorizontalFragment extends Fragment {
     }
 
 
-
     /******************************************************
      * Broadcast service code
      ******************************************************/
@@ -187,16 +219,21 @@ public class RecordWorkoutHorizontalFragment extends Fragment {
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-//            Toast.makeText(context, "Intent detected => " + action, Toast.LENGTH_SHORT).show();
-            switch(action){
 
+            switch(action){
+                case IntentFilterNames.GRAPH_DATA_RECEIVED:
+                    graphDetails = (GraphDetails) intent.getSerializableExtra(IntentFilterNames.GRAPH_DATA);
+                    Toast.makeText(context, "Intent detected => " + graphDetails.getMinSpeed(), Toast.LENGTH_SHORT).show();
+                    createSpeeds();
+//                    createGraph();
+                    break;
                 default: break;
             }
         }
     }
     private void registerBroadCastReceivers(){
         broadcastReceivers = new ArrayList<MyBroadcastReceiver>();
-        createBroadcaseReceiver(IntentFilterNames.LOCATION_RECEIVED);
+        createBroadcaseReceiver(IntentFilterNames.GRAPH_DATA_RECEIVED);
     }
     private void createBroadcaseReceiver(String intentName){
         MyBroadcastReceiver r = new MyBroadcastReceiver();
