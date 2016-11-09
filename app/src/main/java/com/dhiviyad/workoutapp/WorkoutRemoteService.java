@@ -107,7 +107,7 @@ public class WorkoutRemoteService extends Service implements LocationListener,
 
         double latitude = location.getLatitude() - counter;
         double longitude = location.getLongitude();
-        counter += 0.0001; //todo: remove later
+//        counter += 0.0001; //todo: remove later
 
         Intent i = new Intent();
         i.setAction(IntentFilterNames.LOCATION_RECEIVED);
@@ -201,7 +201,7 @@ public class WorkoutRemoteService extends Service implements LocationListener,
         Intent intent = new Intent(IntentFilterNames.MIN_TIMER_RECIEVED);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_ONE_SHOT);
         AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
-        alarmManager.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + (10 * 1000), pendingIntent);
+        alarmManager.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + (15 * 1000), pendingIntent);
     }
 
     private void handleSecondsTimer(){

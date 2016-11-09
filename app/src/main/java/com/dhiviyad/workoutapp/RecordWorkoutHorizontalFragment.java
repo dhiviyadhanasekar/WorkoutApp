@@ -1,25 +1,23 @@
 package com.dhiviyad.workoutapp;
 
 import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.ServiceConnection;
 import android.graphics.Color;
-import android.graphics.Typeface;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.dhiviyad.workoutapp.dataLayer.GraphDetails;
+import com.dhiviyad.workoutapp.dataLayer.WorkoutDetails;
 import com.github.mikephil.charting.charts.CombinedChart;
 import com.github.mikephil.charting.components.AxisBase;
 import com.github.mikephil.charting.components.Legend;
@@ -36,9 +34,6 @@ import com.github.mikephil.charting.formatter.IAxisValueFormatter;
 
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import static android.content.Context.BIND_AUTO_CREATE;
 
 public class RecordWorkoutHorizontalFragment extends Fragment {
@@ -68,6 +63,7 @@ public class RecordWorkoutHorizontalFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         fragmentView = view;
         graphDetails = new GraphDetails();
+        graphDetails.addCurrentWorkout(new WorkoutDetails());
         createSpeeds();
         createGraph();
         registerBroadCastReceivers();
@@ -95,10 +91,10 @@ public class RecordWorkoutHorizontalFragment extends Fragment {
         speedView.setText(StringUtils.getFormattedDistance(graphDetails.getMaxSpeed()));
     }
 
-    protected String[] mMonths = new String[] {
-            "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dec"
-    };
-    private final int itemcount = 12;
+//    private long[] mTime = new long[] {0};
+//    private float[] mCalories = new float[]{0};
+//    private float[] mDistance = new float[]{0};
+//    private final int itemcount = 12;
 
     private void createGraph(){
         mChart = (CombinedChart) fragmentView.findViewById(R.id.chart);
@@ -164,8 +160,8 @@ public class RecordWorkoutHorizontalFragment extends Fragment {
 
         ArrayList<Entry> entries = new ArrayList<Entry>();
 
-        for (int index = 0; index < itemcount; index++)
-            entries.add(new Entry(index + 0.5f, getRandom(15, 5)));
+        for (int index = 0; index < graphDetails.getDistanceEveryFiveMins().size(); index++)
+            entries.add(new Entry(index + 0.5f, graphDetails.getDistanceEveryFiveMins().get(index)));
 
         LineDataSet set = new LineDataSet(entries, "Distance");
         set.setColor(Color.rgb(240, 238, 70));
@@ -185,28 +181,56 @@ public class RecordWorkoutHorizontalFragment extends Fragment {
     }
 
     private BarData generateBarData() {
-
-        ArrayList<BarEntry> entries1 = new ArrayList<BarEntry>();
-        for (int index = 0; index < itemcount; index++) {
-            entries1.add(new BarEntry(index + 0.5f, getRandom(25, 25)));
-        }
-
-        BarDataSet set1 = new BarDataSet(entries1, "Calories");
-        set1.setColor(Color.rgb(60, 220, 78));
-        set1.setValueTextColor(Color.rgb(60, 220, 78));
-        set1.setValueTextSize(10f);
-        set1.setAxisDependency(YAxis.AxisDependency.LEFT);
-
+        BarDataSet caloriesBarDataSet = getBarDataSet();
         float barWidth = 0.45f; // x2 dataset
-        BarData d = new BarData(set1);
+        BarData d = new BarData(caloriesBarDataSet);
         d.setBarWidth(barWidth);
-
         return d;
     }
 
-    protected float getRandom(float range, float startsfrom) {
-        return (float) (Math.random() * range) + startsfrom;
+    @NonNull
+    private BarDataSet getBarDataSet() {
+        ArrayList<BarEntry> entries1 = new ArrayList<BarEntry>();
+        for (int index = 0; index < graphDetails.getCaloriesEveryFiveMins().size(); index++) {
+            entries1.add(new BarEntry(index + 0.5f,  graphDetails.getCaloriesEveryFiveMins().get(index)));
+        }
+
+        BarDataSet caloriesBarDataSet = new BarDataSet(entries1, "Calories");
+        caloriesBarDataSet.setColor(Color.rgb(60, 220, 78));
+        caloriesBarDataSet.setValueTextColor(Color.rgb(60, 220, 78));
+        caloriesBarDataSet.setValueTextSize(10f);
+        caloriesBarDataSet.setAxisDependency(YAxis.AxisDependency.LEFT);
+        return caloriesBarDataSet;
     }
+
+//    private void updateGraphData(){
+//        BarData bd = mChart.getBarData();
+////        bd.clearValues();
+//        int count = bd.getEntryCount();
+//        ArrayList<BarEntry> entries1 = new ArrayList<BarEntry>();
+//        for (int index = count-1; index < graphDetails.getCaloriesEveryFiveMins().size(); index++) {
+////            entries1.add(new BarEntry(index + 0.5f, graphDetails.getCaloriesEveryFiveMins().get(index)));
+//           bd.addEntry((Entry) new BarEntry(index + 0.5f, graphDetails.getCaloriesEveryFiveMins().get(index)), 0);
+//        }
+//
+//        BarDataSet caloriesBarDataSet = new BarDataSet(entries1, "Calories");
+//        caloriesBarDataSet.setColor(Color.rgb(60, 220, 78));
+//        caloriesBarDataSet.setValueTextColor(Color.rgb(60, 220, 78));
+//        caloriesBarDataSet.setValueTextSize(10f);
+//        caloriesBarDataSet.setAxisDependency(YAxis.AxisDependency.LEFT);
+//        bd.addDataSet(caloriesBarDataSet);
+////        bd.addDataSet(getBarDataSet());
+//
+////        LineData ld= mChart.getLineData();
+////        ld.clearValues();
+//
+//        mChart.getData().notifyDataChanged();
+//        mChart.notifyDataSetChanged();
+//        mChart.invalidate();
+//        mChart.moveViewToX(bd.getEntryCount());
+//
+//        Log.i("Profile page", "calling update data");
+//    }
 
 
     /******************************************************
@@ -223,9 +247,10 @@ public class RecordWorkoutHorizontalFragment extends Fragment {
             switch(action){
                 case IntentFilterNames.GRAPH_DATA_RECEIVED:
                     graphDetails = (GraphDetails) intent.getSerializableExtra(IntentFilterNames.GRAPH_DATA);
-                    Toast.makeText(context, "Intent detected => " + graphDetails.getMinSpeed(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, "Intent detected => " + graphDetails.getCaloriesEveryFiveMins().size(), Toast.LENGTH_SHORT).show();
                     createSpeeds();
-//                    createGraph();
+//                    updateGraphData();
+                    createGraph();
                     break;
                 default: break;
             }
