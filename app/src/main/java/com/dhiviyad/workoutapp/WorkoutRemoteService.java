@@ -325,7 +325,9 @@ public class WorkoutRemoteService extends Service implements LocationListener,
         locationPoints = null;
         sendDistanceBroadcast(0);
         sendSecondsBroadcast("00:00:00");
-        sendGraphDataBroadcast(new GraphDetails());
+        GraphDetails g = new GraphDetails();
+        g.addCurrentWorkout(new WorkoutDetails());
+        sendGraphDataBroadcast(g);
         graphDetails = null;
         workout = null;
     }
