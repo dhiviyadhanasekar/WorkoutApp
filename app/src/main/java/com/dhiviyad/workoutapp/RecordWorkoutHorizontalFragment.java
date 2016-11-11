@@ -150,7 +150,9 @@ public class RecordWorkoutHorizontalFragment extends Fragment {
         xAxis.setValueFormatter(new IAxisValueFormatter() {
             @Override
             public String getFormattedValue(float value, AxisBase axis) {
-                return (StringUtils.getFormattedDistance(timeData.get((int)value % timeData.size() ))) + "m";
+                long s = (long) timeData.get((int)value % timeData.size());
+                if(s > 60) return ((s/60) + "m");
+                return (int)s + "s";
             }
             @Override
             public int getDecimalDigits() {

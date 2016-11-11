@@ -47,12 +47,12 @@ public class MainActivity extends AppCompatActivity  {
         public void onServiceConnected(ComponentName name, IBinder service) {
             remoteService = IWorkoutAidlInterface.Stub.asInterface((IBinder) service);
             Log.v(TAG, "remote service connected");
-            Toast.makeText(MainActivity.this, "service connected " , Toast.LENGTH_LONG).show();
+//            Toast.makeText(MainActivity.this, "service connected " , Toast.LENGTH_LONG).show();
             try {
                 boolean recordingWorkout = remoteService.getWorkoutState();
                 Button b = (Button) findViewById(R.id.workout_toggle_button);
                 if(b != null) {
-                    Toast.makeText(MainActivity.this, "recordigWorkout = " + recordingWorkout , Toast.LENGTH_LONG).show();
+//                    Toast.makeText(MainActivity.this, "recordigWorkout = " + recordingWorkout , Toast.LENGTH_LONG).show();
                     if (recordingWorkout == true) {
                         b.setText("Stop workout");
                         remoteService.sendDistanceData();
@@ -82,7 +82,7 @@ public class MainActivity extends AppCompatActivity  {
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            Toast.makeText(context, "Intent detected => " + intent.getAction() , Toast.LENGTH_SHORT).show();
+//            Toast.makeText(context, "Intent detected => " + intent.getAction() , Toast.LENGTH_SHORT).show();
         }
     }
 

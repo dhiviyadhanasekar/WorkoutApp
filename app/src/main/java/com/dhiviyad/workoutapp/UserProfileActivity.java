@@ -51,7 +51,7 @@ public class UserProfileActivity extends AppCompatActivity {
 
         weeklyWorkouts = db.getWeeklyWorkout();
         setWeeklyWorkoutData(new WorkoutDetails());
-        Toast.makeText(this, "Total workout count => " + weeklyWorkouts.getWorkoutCount() + " => " +weeklyWorkouts.getDistance(), Toast.LENGTH_SHORT).show();
+//        Toast.makeText(this, "Total workout count => " + weeklyWorkouts.getWorkoutCount() + " => " +weeklyWorkouts.getDistance(), Toast.LENGTH_SHORT).show();
         bindService();
         registerBroadCastReceivers();
     }

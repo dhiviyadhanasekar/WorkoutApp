@@ -52,7 +52,7 @@ public class GraphDetails implements Serializable {
         float calories = w.getCaloriesBurnt();
         long curTime = w.getDuration();
         float dist = w.getDistance();
-        curTime = curTime/(1000 * 60); //min
+        curTime = curTime/(1000); //* 60); //min
 
         if(caloriesEveryFiveMins.size() == 0) {
             caloriesEveryFiveMins.add(calories);
@@ -72,6 +72,7 @@ public class GraphDetails implements Serializable {
         if(time.size() > 0) {
             newTime =  Math.abs(curTime-time.get(time.size()-1));
         }
+//        newTime = newTime/60;
         time.add(curTime);
 
         dist = distanceEveryFiveMins.get(distanceEveryFiveMins.size()-1);

@@ -62,7 +62,7 @@ public class WorkoutRemoteService extends Service implements LocationListener,
         recordingWorkout = false;
         createStepSensor();
         Log.v(TAG, "Remote service onCreate called");
-        Toast.makeText(this, "remote service created", Toast.LENGTH_LONG).show();
+//        Toast.makeText(this, "remote service created", Toast.LENGTH_LONG).show();
         initAIDLBinder();
         initLocationService();
         createDB();
@@ -76,7 +76,7 @@ public class WorkoutRemoteService extends Service implements LocationListener,
         stopLocationUpdates();
         mGoogleApiClient.disconnect();
         Log.v(TAG, "Remote service onDestroy called");
-        Toast.makeText(this, "remote service stopped", Toast.LENGTH_LONG).show();
+//        Toast.makeText(this, "remote service stopped", Toast.LENGTH_LONG).show();
         sensorManager.unregisterListener(this);
         unregisterBroadcastReceivers();
     }

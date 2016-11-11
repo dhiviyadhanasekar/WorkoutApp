@@ -79,7 +79,7 @@
                         android:textSize="24sp" />
 
                     <TextView
-                        android:text="min/mi"
+                        android:text="s/mi"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:id="@+id/textView31"
@@ -122,7 +122,7 @@
                         android:padding="5dp" />
 
                     <TextView
-                        android:text="min/mi"
+                        android:text="s/mi"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:id="@+id/textView34"
@@ -160,7 +160,7 @@
                         android:padding="5dp" />
 
                     <TextView
-                        android:text="min/mil"
+                        android:text="s/mil"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:id="@+id/textView37"
