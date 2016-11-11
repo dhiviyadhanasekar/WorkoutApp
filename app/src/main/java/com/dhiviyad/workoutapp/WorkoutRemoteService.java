@@ -133,8 +133,8 @@ public class WorkoutRemoteService extends Service implements LocationListener,
                 workout.addSteps();
                 sendWorkoutBroadcast(workout);
 //            }
-            Toast.makeText(this, "Firing onsensorchanged => " + workout.getStepsCount() + " => cal " + workout.getCaloriesBurnt() + " => dist "
-                    + workout.getDistance() , Toast.LENGTH_SHORT).show();
+//            Toast.makeText(this, "Firing onsensorchanged => " + workout.getStepsCount() + " => cal " + workout.getCaloriesBurnt() + " => dist "
+//                    + workout.getDistance() , Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -201,7 +201,7 @@ public class WorkoutRemoteService extends Service implements LocationListener,
         Intent intent = new Intent(IntentFilterNames.MIN_TIMER_RECIEVED);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_ONE_SHOT);
         AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
-        alarmManager.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + (15 * 1000), pendingIntent);
+        alarmManager.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + (5 * 1000), pendingIntent);
     }
 
     private void handleSecondsTimer(){

@@ -49,18 +49,37 @@ public class GraphDetails implements Serializable {
     }
     public void addCurrentWorkout(WorkoutDetails w){
 
-        caloriesEveryFiveMins.add(w.getCaloriesBurnt());
+        float calories = w.getCaloriesBurnt();
         long curTime = w.getDuration();
         float dist = w.getDistance();
         curTime = curTime/(1000 * 60); //min
 
-        float speed = dist>0 ? curTime/dist: 0; //min/miles
+        if(caloriesEveryFiveMins.size() == 0) {
+            caloriesEveryFiveMins.add(calories);
+        } else {
+            float newCalories = Math.abs(calories-caloriesEveryFiveMins.get(caloriesEveryFiveMins.size()-1));
+            caloriesEveryFiveMins.add(newCalories);
+        }
+
+        if(distanceEveryFiveMins.size() == 0) {
+            distanceEveryFiveMins.add(dist);
+        } else {
+            float newDist = Math.abs(dist - distanceEveryFiveMins.get(distanceEveryFiveMins.size()-1));
+            distanceEveryFiveMins.add(newDist);
+        }
+
+        long newTime = curTime;
+        if(time.size() > 0) {
+            newTime =  Math.abs(curTime-time.get(time.size()-1));
+        }
+        time.add(curTime);
+
+        dist = distanceEveryFiveMins.get(distanceEveryFiveMins.size()-1);
+//        curTime = time.get(time.size()-1);
+        float speed = dist>0 ? newTime/dist: 0; //min/miles
         if(speed > maxSpeed) maxSpeed = speed;
         if(speed>0 && speed < minSpeed) minSpeed = speed;
 //        if(time.size() == 0) minSpeed = speed;
         sumSpeed += speed;
-
-        distanceEveryFiveMins.add(dist);
-        time.add(curTime);
     }
 }

@@ -1,15 +1,18 @@
-<HorizontalScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context="com.dhiviyad.workoutapp.RecordWorkoutHorizontalFragment">
+<!--<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"-->
+    <!--xmlns:tools="http://schemas.android.com/tools"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="match_parent"-->
+    <!--tools:context="com.dhiviyad.workoutapp.RecordWorkoutHorizontalFragment">-->
 
 
     <LinearLayout
         android:orientation="vertical"
-        android:layout_height="match_parent"
         android:background="@android:color/white"
-        android:layout_width="match_parent">
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context="com.dhiviyad.workoutapp.RecordWorkoutHorizontalFragment">
 
         <LinearLayout
             android:orientation="horizontal"
@@ -169,16 +172,28 @@
             </LinearLayout>
         </LinearLayout>
 
-        <LinearLayout
+        <HorizontalScrollView
             android:orientation="vertical"
-            android:layout_width="700dp"
+            android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:background="@android:color/white"
-            android:id="@+id/graph_area">
-            <com.github.mikephil.charting.charts.CombinedChart
-                android:id="@+id/chart"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"/>
-        </LinearLayout>
+            android:id="@+id/scroll_view">
+            <!--<LinearLayout-->
+                <!--android:orientation="vertical"-->
+                <!--android:layout_height="match_parent"-->
+                <!--android:layout_marginLeft="10dp"-->
+                <!--android:layout_marginRight="10dp"-->
+                <!--android:id="@+id/graph_area"-->
+                <!--android:layout_width="800dp">-->
+                <com.github.mikephil.charting.charts.CombinedChart
+                    android:id="@+id/chart"
+                    android:layout_height="match_parent"
+                    android:layout_width="wrap_content"
+                    android:minWidth="800dp"
+                    android:layout_marginLeft="3dp"
+                    android:layout_marginRight="3dp"
+                    android:paddingRight="20dp" />
+            <!--</LinearLayout>-->
+        </HorizontalScrollView>
     </LinearLayout>
-</HorizontalScrollView>
+<!--</LinearLayout>-->
