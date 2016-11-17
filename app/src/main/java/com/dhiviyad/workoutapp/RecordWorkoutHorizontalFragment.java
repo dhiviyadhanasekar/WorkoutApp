@@ -168,7 +168,7 @@ public class RecordWorkoutHorizontalFragment extends Fragment {
 
         int count = graphDetails.getCaloriesEveryFiveMins().size();
         float width = graphDetails.getCaloriesEveryFiveMins().size()*300 + barWidth*count;
-        if(graphDetails.getCaloriesEveryFiveMins().size() < 7) width = 2400;
+        if(width < 2400) width = 2400;
         mChart.setMinimumWidth((int)width);
         mChart.setData(data);
         mChart.moveViewToX(count-barWidth/2);//mChart.getBarData().getEntryCount()+ + barWidth*graphDetails.getCaloriesEveryFiveMins().size());
@@ -177,8 +177,8 @@ public class RecordWorkoutHorizontalFragment extends Fragment {
         mChart.getXAxis().setAxisMaximum(count-barWidth/2);
         mChart.invalidate();
 
-        HorizontalScrollView s = (HorizontalScrollView) fragmentView.findViewById(R.id.scroll_view);
-        s.fullScroll(HorizontalScrollView.FOCUS_RIGHT);
+//        HorizontalScrollView s = (HorizontalScrollView) fragmentView.findViewById(R.id.scroll_view);
+//        s.fullScroll(HorizontalScrollView.FOCUS_RIGHT);
 
     }
 
@@ -193,16 +193,18 @@ public class RecordWorkoutHorizontalFragment extends Fragment {
 //            float shift = (index == 0) ? (index) : (index + 0.5f);
             entries.add(new Entry(shift, graphDetails.getDistanceEveryFiveMins().get(index)));
         }
+
+        int blue = Color.rgb(0,0,255);//Color.rgb(240, 238, 70)
         LineDataSet set = new LineDataSet(entries, "Distance");
-        set.setColor(Color.rgb(240, 238, 70));
+        set.setColor(blue);
         set.setLineWidth(2.5f);
-        set.setCircleColor(Color.rgb(240, 238, 70));
+        set.setCircleColor(blue);
         set.setCircleRadius(5f);
-        set.setFillColor(Color.rgb(240, 238, 70));
+        set.setFillColor(blue);
         set.setMode(LineDataSet.Mode.CUBIC_BEZIER);
         set.setDrawValues(true);
         set.setValueTextSize(10f);
-        set.setValueTextColor(Color.rgb(240, 238, 70));
+        set.setValueTextColor(blue);
 
         set.setAxisDependency(YAxis.AxisDependency.LEFT);
         d.addDataSet(set);
@@ -226,9 +228,12 @@ public class RecordWorkoutHorizontalFragment extends Fragment {
             entries1.add(new BarEntry(shift,  graphDetails.getCaloriesEveryFiveMins().get(index)));
         }
 
+        int green = Color.rgb(0, 100, 0);//Color.rgb(60, 220, 78);
+        int green_light = Color.rgb(60, 220, 78);
+
         BarDataSet caloriesBarDataSet = new BarDataSet(entries1, "Calories");
-        caloriesBarDataSet.setColor(Color.rgb(60, 220, 78));
-        caloriesBarDataSet.setValueTextColor(Color.rgb(60, 220, 78));
+        caloriesBarDataSet.setColor(green_light);
+        caloriesBarDataSet.setValueTextColor(green);
         caloriesBarDataSet.setValueTextSize(10f);
         caloriesBarDataSet.setAxisDependency(YAxis.AxisDependency.LEFT);
         return caloriesBarDataSet;

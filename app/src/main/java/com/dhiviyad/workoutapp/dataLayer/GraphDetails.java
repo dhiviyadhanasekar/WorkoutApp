@@ -8,8 +8,14 @@ import java.util.ArrayList;
  */
 
 public class GraphDetails implements Serializable {
+
+    float previousTotalCalories;
+    float previousTotalDistance;
+//    long previousTotalTime;
+
     ArrayList<Float> caloriesEveryFiveMins;
     ArrayList<Float> distanceEveryFiveMins;
+
     private float maxSpeed;
     private float minSpeed;
     private float sumSpeed;
@@ -22,6 +28,9 @@ public class GraphDetails implements Serializable {
         maxSpeed = 0.0f;
         minSpeed = Integer.MAX_VALUE;
         sumSpeed = 0.0f;
+        previousTotalCalories = 0;
+        previousTotalDistance = 0;
+//        previousTotalTime = 0;
     }
 
     public ArrayList<Float> getCaloriesEveryFiveMins() {
@@ -54,29 +63,21 @@ public class GraphDetails implements Serializable {
         float dist = w.getDistance();
         curTime = curTime/(1000); //* 60); //min
 
-        if(caloriesEveryFiveMins.size() == 0) {
-            caloriesEveryFiveMins.add(calories);
-        } else {
-            float newCalories = Math.abs(calories-caloriesEveryFiveMins.get(caloriesEveryFiveMins.size()-1));
-            caloriesEveryFiveMins.add(newCalories);
-        }
+        float newCalories = Math.abs(calories-previousTotalCalories);
+        caloriesEveryFiveMins.add(newCalories);
+        previousTotalCalories = calories;
 
-        if(distanceEveryFiveMins.size() == 0) {
-            distanceEveryFiveMins.add(dist);
-        } else {
-            float newDist = Math.abs(dist - distanceEveryFiveMins.get(distanceEveryFiveMins.size()-1));
-            distanceEveryFiveMins.add(newDist);
-        }
+        float newDist = Math.abs(dist - previousTotalDistance);
+        distanceEveryFiveMins.add(newDist);
+        previousTotalDistance = dist;
 
         long newTime = curTime;
         if(time.size() > 0) {
             newTime =  Math.abs(curTime-time.get(time.size()-1));
         }
-//        newTime = newTime/60;
         time.add(curTime);
 
         dist = distanceEveryFiveMins.get(distanceEveryFiveMins.size()-1);
-//        curTime = time.get(time.size()-1);
         float speed = dist>0 ? newTime/dist: 0; //min/miles
         if(speed > maxSpeed) maxSpeed = speed;
         if(speed>0 && speed < minSpeed) minSpeed = speed;

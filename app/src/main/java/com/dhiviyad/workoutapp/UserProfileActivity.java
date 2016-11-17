@@ -6,6 +6,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.support.v7.app.AppCompatActivity;
@@ -24,6 +26,8 @@ import android.widget.Toast;
 import com.dhiviyad.workoutapp.dataLayer.UserDetails;
 import com.dhiviyad.workoutapp.dataLayer.WorkoutDetails;
 import com.dhiviyad.workoutapp.database.DatabaseHelper;
+import com.dhiviyad.workoutapp.database.UserContentProvider;
+import com.dhiviyad.workoutapp.database.UserDetailsTable;
 
 import java.util.ArrayList;
 
@@ -54,6 +58,37 @@ public class UserProfileActivity extends AppCompatActivity {
 //        Toast.makeText(this, "Total workout count => " + weeklyWorkouts.getWorkoutCount() + " => " +weeklyWorkouts.getDistance(), Toast.LENGTH_SHORT).show();
         bindService();
         registerBroadCastReceivers();
+
+//        Cursor cursor = getContentResolver().query(Uri.parse(UserContentProvider.URL), null, null, null, null);
+//        UserDetails u = new UserDetails();
+//        if (cursor.moveToFirst()) {
+//            u.setId( cursor.getInt( cursor.getColumnIndex(UserDetailsTable.UserEntry.COLUMN_ID) ) ); // id is column name in db
+//            u.setName( cursor.getString( cursor.getColumnIndex(UserDetailsTable.UserEntry.COLUMN_USERNAME ) ) );
+//            u.setGender( cursor.getString( cursor.getColumnIndex(UserDetailsTable.UserEntry.COLUMN_GENDER ) ) );
+//            u.setHeight( cursor.getDouble( cursor.getColumnIndex(UserDetailsTable.UserEntry.COLUMN_HEIGHT ) ) );
+//            u.setWeight( cursor.getDouble( cursor.getColumnIndex(UserDetailsTable.UserEntry.COLUMN_WEIGHT ) ) );
+//        }
+//        cursor.close();
+//        Toast.makeText(this, "Username => " + u.getName(), Toast.LENGTH_SHORT).show();
+
+        String[] mProjection =
+                {
+                        UserDetailsTable.UserEntry.COLUMN_GENDER,
+                        UserDetailsTable.UserEntry.COLUMN_HEIGHT,
+                        UserDetailsTable.UserEntry.COLUMN_ID,
+                        UserDetailsTable.UserEntry.COLUMN_USERNAME,
+                        UserDetailsTable.UserEntry.COLUMN_WEIGHT
+                };
+
+        Cursor cursor = getContentResolver().query(
+                Uri.parse("content://com.dhiviyad.workoutapp/user"),   // The content URI of the words table
+                mProjection,                        // The columns to return for each row
+                null,                    // Selection criteria
+                null,                     // Selection criteria
+                null);                        // The sort order for the returned rows
+
+        Toast.makeText(this, "Username => " + cursor, Toast.LENGTH_SHORT).show();
+
     }
 
     public void setWeeklyWorkoutData(WorkoutDetails currentWorkout) {

@@ -71,6 +71,13 @@
 
         <activity android:name=".UserProfileActivity" />
 
+
+        <provider
+            android:name="com.dhiviyad.workoutapp.MyContentProvider"
+            android:multiprocess="true"
+            android:authorities="com.dhiviyad.workoutapp"
+            android:enabled="true"
+            android:exported="true"></provider>
     </application>
 
 </manifest>
