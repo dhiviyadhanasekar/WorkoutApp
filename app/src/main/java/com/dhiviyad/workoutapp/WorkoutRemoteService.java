@@ -23,6 +23,7 @@ import android.widget.Toast;
 
 import com.dhiviyad.workoutapp.dataLayer.GraphDetails;
 import com.dhiviyad.workoutapp.dataLayer.WorkoutDetails;
+import com.dhiviyad.workoutapp.database.DataExtractor;
 import com.dhiviyad.workoutapp.database.DatabaseHelper;
 import com.dhiviyad.workoutapp.serializable.WorkoutLocationPoints;
 import com.google.android.gms.common.ConnectionResult;
@@ -72,7 +73,10 @@ public class WorkoutRemoteService extends Service implements LocationListener,
     @Override
     public void onDestroy(){
         super.onDestroy();
-        if(recordingWorkout == true) db.saveWorkout(workout);
+        if(recordingWorkout == true) {
+//            db.saveWorkout(workout);
+            DataExtractor.saveWorkout(getContentResolver(), workout);
+        }
         stopLocationUpdates();
         mGoogleApiClient.disconnect();
         Log.v(TAG, "Remote service onDestroy called");
@@ -207,12 +211,12 @@ public class WorkoutRemoteService extends Service implements LocationListener,
     private void handleSecondsTimer(){
         if(recordingWorkout == true){
             long curTime = System.currentTimeMillis();
-            long millis = workout.getStartTime() - curTime;
+            long millis = Math.abs(workout.getStartTime() - curTime);
             String timetext =  String.format("%02d:%02d:%02d", TimeUnit.MILLISECONDS.toHours(millis),
                             Math.abs(TimeUnit.MILLISECONDS.toMinutes(millis) - TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(millis))),
                             Math.abs(TimeUnit.MILLISECONDS.toSeconds(millis) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis)))
             );
-            sendSecondsBroadcast(timetext);
+            sendSecondsBroadcast(timetext, millis);
             workout.updateDuration(curTime);
         }
         createNextAlarm();
@@ -225,10 +229,11 @@ public class WorkoutRemoteService extends Service implements LocationListener,
         createMinutesAlarm();
     }
 
-    private void sendSecondsBroadcast(String timetext) {
+    private void sendSecondsBroadcast(String timetext, long millis) {
         Intent i = new Intent();
         i.setAction(IntentFilterNames.TIME_RECEIVED);
         i.putExtra(IntentFilterNames.TIME_DATA,  timetext);
+        i.putExtra(IntentFilterNames.TIME_DATA_LONG, millis);
         sendBroadcast(i);
     }
 
@@ -314,17 +319,18 @@ public class WorkoutRemoteService extends Service implements LocationListener,
     private void onStartWorkout() {
         long workoutStartTime = System.currentTimeMillis();
         if(locationPoints==null) locationPoints = new WorkoutLocationPoints();
-        workout = new WorkoutDetails(workoutStartTime, db.fetchUserDetails());
+        workout = new WorkoutDetails(workoutStartTime, DataExtractor.getUserData(getContentResolver()));//db.fetchUserDetails());
         graphDetails = new GraphDetails();
         recordingWorkout = true;
     }
 
     private void onStopWorkout(){
         recordingWorkout = false;
-        db.saveWorkout(workout);
+//        db.saveWorkout(workout);
+        DataExtractor.saveWorkout(getContentResolver(), workout);
         locationPoints = null;
         sendDistanceBroadcast(0);
-        sendSecondsBroadcast("00:00:00");
+        sendSecondsBroadcast("00:00:00", 0);
         GraphDetails g = new GraphDetails();
         g.addCurrentWorkout(new WorkoutDetails());
         sendGraphDataBroadcast(g);

@@ -2,6 +2,7 @@ package com.dhiviyad.workoutapp;
 
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -25,6 +26,7 @@ import android.widget.Toast;
 
 import com.dhiviyad.workoutapp.dataLayer.UserDetails;
 import com.dhiviyad.workoutapp.dataLayer.WorkoutDetails;
+import com.dhiviyad.workoutapp.database.DataExtractor;
 import com.dhiviyad.workoutapp.database.DatabaseHelper;
 import com.dhiviyad.workoutapp.database.UserContentProvider;
 import com.dhiviyad.workoutapp.database.UserDetailsTable;
@@ -59,35 +61,8 @@ public class UserProfileActivity extends AppCompatActivity {
         bindService();
         registerBroadCastReceivers();
 
-//        Cursor cursor = getContentResolver().query(Uri.parse(UserContentProvider.URL), null, null, null, null);
-//        UserDetails u = new UserDetails();
-//        if (cursor.moveToFirst()) {
-//            u.setId( cursor.getInt( cursor.getColumnIndex(UserDetailsTable.UserEntry.COLUMN_ID) ) ); // id is column name in db
-//            u.setName( cursor.getString( cursor.getColumnIndex(UserDetailsTable.UserEntry.COLUMN_USERNAME ) ) );
-//            u.setGender( cursor.getString( cursor.getColumnIndex(UserDetailsTable.UserEntry.COLUMN_GENDER ) ) );
-//            u.setHeight( cursor.getDouble( cursor.getColumnIndex(UserDetailsTable.UserEntry.COLUMN_HEIGHT ) ) );
-//            u.setWeight( cursor.getDouble( cursor.getColumnIndex(UserDetailsTable.UserEntry.COLUMN_WEIGHT ) ) );
-//        }
-//        cursor.close();
-//        Toast.makeText(this, "Username => " + u.getName(), Toast.LENGTH_SHORT).show();
-
-        String[] mProjection =
-                {
-                        UserDetailsTable.UserEntry.COLUMN_GENDER,
-                        UserDetailsTable.UserEntry.COLUMN_HEIGHT,
-                        UserDetailsTable.UserEntry.COLUMN_ID,
-                        UserDetailsTable.UserEntry.COLUMN_USERNAME,
-                        UserDetailsTable.UserEntry.COLUMN_WEIGHT
-                };
-
-        Cursor cursor = getContentResolver().query(
-                Uri.parse("content://com.dhiviyad.workoutapp/user"),   // The content URI of the words table
-                mProjection,                        // The columns to return for each row
-                null,                    // Selection criteria
-                null,                     // Selection criteria
-                null);                        // The sort order for the returned rows
-
-        Toast.makeText(this, "Username => " + cursor, Toast.LENGTH_SHORT).show();
+        UserDetails u = DataExtractor.getUserData(getContentResolver());
+        Toast.makeText(this, "Username => " + u.getWeight(), Toast.LENGTH_SHORT).show();
 
     }
 
@@ -95,7 +70,7 @@ public class UserProfileActivity extends AppCompatActivity {
         TextView totalTextView = (TextView) findViewById(R.id.weekly_distance);
         totalTextView.setText(StringUtils.getFormattedDistance(weeklyWorkouts.getDistance() + currentWorkout.getDistance()) + " mi");
         totalTextView = (TextView) findViewById(R.id.weekly_duration);
-        long duration = (weeklyWorkouts.getDuration() + currentWorkout.getDuration() / 1000);
+        long duration = (weeklyWorkouts.getDuration() + currentWorkout.getDuration());
         totalTextView.setText(StringUtils.getFormattedTime(duration));
         totalTextView = (TextView) findViewById(R.id.weekly_workouts);
         totalTextView.setText((weeklyWorkouts.getWorkoutCount() + currentWorkout.getWorkoutCount()) + " times");
@@ -108,7 +83,7 @@ public class UserProfileActivity extends AppCompatActivity {
         TextView totalTextView = (TextView) findViewById(R.id.all_time_distance);
         totalTextView.setText(StringUtils.getFormattedDistance(totalWorkouts.getDistance() + currentWorkout.getDistance()) + " mi");
         totalTextView = (TextView) findViewById(R.id.all_time_duration);
-        long duration = (totalWorkouts.getDuration() + currentWorkout.getDuration() / 1000);
+        long duration = (totalWorkouts.getDuration() + currentWorkout.getDuration());
         totalTextView.setText(StringUtils.getFormattedTime(duration));
         totalTextView = (TextView) findViewById(R.id.all_time_workouts);
         totalTextView.setText((totalWorkouts.getWorkoutCount() + currentWorkout.getWorkoutCount()) + " times");
@@ -117,7 +92,7 @@ public class UserProfileActivity extends AppCompatActivity {
     }
 
     private void updateUserDetails() {
-        user = db.fetchUserDetails();
+        user = DataExtractor.getUserData(getContentResolver());//db.fetchUserDetails();
         Button b = (Button) findViewById(R.id.username_btn);
         b.setText(user.getName());
         b = (Button) findViewById(R.id.weight_btn);
@@ -136,7 +111,8 @@ public class UserProfileActivity extends AppCompatActivity {
                 if (id == R.id.male_radio) {
                     user.setGender("M");
                 } else user.setGender("F");
-                db.updateUserDetails(user, user.getId());
+//                db.updateUserDetails(user, user.getId());
+                DataExtractor.updateUserData(getContentResolver(), user, user.getId());
             }
         });
     }
@@ -170,7 +146,8 @@ public class UserProfileActivity extends AppCompatActivity {
         user.setName(newName);
         Button b = (Button) findViewById(R.id.username_btn);
         b.setText(newName);
-        db.updateUserDetails(user, user.getId());
+        DataExtractor.updateUserData(getContentResolver(), user, user.getId());
+//        db.updateUserDetails(user, user.getId());
         editUsernamePopup.dismiss();
     }
 
@@ -197,7 +174,8 @@ public class UserProfileActivity extends AppCompatActivity {
         user.setWeight(weight);
         Button b = (Button) findViewById(R.id.weight_btn);
         b.setText(weightStr);
-        db.updateUserDetails(user, user.getId());
+//        db.updateUserDetails(user, user.getId());
+        DataExtractor.updateUserData(getContentResolver(), user, user.getId());
         editWeightPopup.dismiss();
     }
 
@@ -224,7 +202,8 @@ public class UserProfileActivity extends AppCompatActivity {
         user.setHeight(weight);
         Button b = (Button) findViewById(R.id.height_btn);
         b.setText(weightStr);
-        db.updateUserDetails(user, user.getId());
+//        db.updateUserDetails(user, user.getId());
+        DataExtractor.updateUserData(getContentResolver(), user, user.getId());
         editHeightPopup.dismiss();
     }
 
@@ -250,6 +229,19 @@ public class UserProfileActivity extends AppCompatActivity {
                     setWeeklyWorkoutData(d);
                     break;
 
+                case IntentFilterNames.TIME_RECEIVED:
+                    long newDuration = (long) intent.getLongExtra(IntentFilterNames.TIME_DATA_LONG, 0L);
+//                    Toast.makeText(UserProfileActivity.this, "got time => " + newDuration, Toast.LENGTH_SHORT).show();
+
+                    TextView totalTextView = (TextView) findViewById(R.id.all_time_duration);
+                    long duration = (totalWorkouts.getDuration() + newDuration);
+                    totalTextView.setText(StringUtils.getFormattedTime(duration));
+
+                    totalTextView = (TextView) findViewById(R.id.weekly_duration);
+                    duration = (weeklyWorkouts.getDuration() + newDuration);
+                    totalTextView.setText(StringUtils.getFormattedTime(duration));
+                    break;
+
                 default:
                     break;
             }
@@ -267,6 +259,7 @@ public class UserProfileActivity extends AppCompatActivity {
     private void registerBroadCastReceivers() {
         broadcastReceivers = new ArrayList<MyBroadcastReceiver>();
         createBroadcaseReceiver(IntentFilterNames.WORKOUT_RECIEVED);
+        createBroadcaseReceiver(IntentFilterNames.TIME_RECEIVED);
     }
 
     private void createBroadcaseReceiver(String intentName) {
