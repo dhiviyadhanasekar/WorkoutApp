@@ -30,6 +30,8 @@ import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.formatter.IAxisValueFormatter;
+import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
+import com.github.mikephil.charting.utils.ColorTemplate;
 
 import java.util.ArrayList;
 import static android.content.Context.BIND_AUTO_CREATE;
@@ -161,8 +163,12 @@ public class RecordWorkoutHorizontalFragment extends Fragment {
         });
 
         CombinedData data = new CombinedData();
-        data.setData(generateLineData());
+        LineData mlineData=generateLineData();
+        mlineData.addDataSet(generateStepsData().getDataSetByIndex(0));
+        data.setData(mlineData);
+//        data.setData(generateLineData());
         data.setData(generateBarData());
+//        data.setData(generateStepsData());
 
         xAxis.setAxisMaximum(data.getXMax());// + 0.25f);
 
@@ -182,11 +188,41 @@ public class RecordWorkoutHorizontalFragment extends Fragment {
 
     }
 
-    private LineData generateLineData() {
-
+    private LineData generateStepsData() {
         LineData d = new LineData();
 
         ArrayList<Entry> entries = new ArrayList<Entry>();
+
+        for (int index = 0; index < graphDetails.getStepsEveryFiveMins().size(); index++) {
+            float shift = (index);// + 0.12f);
+//            float shift = (index == 0) ? (index) : (index + 0.5f);
+            entries.add(new Entry(shift, graphDetails.getStepsEveryFiveMins().get(index)/10));
+        }
+
+        int blue = Color.rgb(153,0,0);//Color.rgb(240, 238, 70)
+        LineDataSet set = new LineDataSet(entries, "(Steps Count)/10");
+        set.setColor(blue);
+        set.setLineWidth(2.5f);
+        set.setCircleColor(blue);
+        set.setCircleRadius(5f);
+        set.setFillColor(blue);
+        set.setMode(LineDataSet.Mode.CUBIC_BEZIER);
+        set.setDrawValues(true);
+        set.setValueTextSize(10f);
+        set.setValueTextColor(blue);
+
+        set.setAxisDependency(YAxis.AxisDependency.LEFT);
+        d.addDataSet(set);
+
+        return d;
+    }
+
+    private LineData generateLineData() {
+
+
+
+        ArrayList<Entry> entries = new ArrayList<Entry>();
+        ArrayList<ILineDataSet> dataSets = new ArrayList<ILineDataSet>();
 
         for (int index = 0; index < graphDetails.getDistanceEveryFiveMins().size(); index++) {
             float shift = (index);// + 0.12f);
@@ -205,10 +241,15 @@ public class RecordWorkoutHorizontalFragment extends Fragment {
         set.setDrawValues(true);
         set.setValueTextSize(10f);
         set.setValueTextColor(blue);
-
         set.setAxisDependency(YAxis.AxisDependency.LEFT);
-        d.addDataSet(set);
 
+//        dataSets.add(set);
+//        dataSets.add(generateStepsData());
+
+//        LineData d = new LineData((ILineDataSet) dataSets);
+//        d.addDataSet(set);
+        LineData d = new LineData();
+        d.addDataSet(set);
         return d;
     }
 

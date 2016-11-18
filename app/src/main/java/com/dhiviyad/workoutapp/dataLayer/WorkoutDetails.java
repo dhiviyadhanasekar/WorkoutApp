@@ -24,6 +24,7 @@ public class WorkoutDetails implements Serializable{
         distance = 0;
         duration = 0;
         caloriesBurnt = 0;
+        stepsCount = 0;
     }
 
     public WorkoutDetails(long startTime, UserDetails user) {
