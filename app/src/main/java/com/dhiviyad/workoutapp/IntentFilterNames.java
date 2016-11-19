@@ -23,4 +23,7 @@ public class IntentFilterNames {
 
     public static final String GRAPH_DATA_RECEIVED = "com.dhiviyad.workoutapp.GRAPH_DATA_RECEIVED";
     public static final String GRAPH_DATA = "GRAPH_DATA";
+
+    public static final String SPEED_DATA_RECEIVED = "com.dhiviyad.workoutapp.SPEED_DATA_RECEIVED";
+    public static final String SPEED_DATA = "SPEED_DATA";
 }

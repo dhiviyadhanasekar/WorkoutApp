@@ -57,11 +57,11 @@ public class MainActivity extends AppCompatActivity  {
                         b.setText("Stop workout");
                         remoteService.sendDistanceData();
                     } else b.setText("Start workout");
+                    remoteService.sendLocationData();
                 }
 
                 View v = findViewById(R.id.chart);
                 if(v != null && recordingWorkout == true) remoteService.sendGraphData();
-
 
             } catch (RemoteException e) {
                 e.printStackTrace();

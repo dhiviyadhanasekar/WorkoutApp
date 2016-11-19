@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.HorizontalScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.dhiviyad.workoutapp.dataLayer.GraphDetails;
 import com.dhiviyad.workoutapp.dataLayer.WorkoutDetails;
@@ -46,8 +47,9 @@ public class RecordWorkoutHorizontalFragment extends Fragment {
     private CombinedChart mChart;
     View fragmentView;
     GraphDetails graphDetails;
+    GraphDetails speedDetails;
     float barWidth = 0.25f; // x2 dataset
-
+    private static final String minuteStr = "";
 
     public RecordWorkoutHorizontalFragment() {
         // Required empty public constructor
@@ -68,6 +70,8 @@ public class RecordWorkoutHorizontalFragment extends Fragment {
 
         graphDetails = new GraphDetails();
         graphDetails.addCurrentWorkout(new WorkoutDetails());
+        speedDetails = new GraphDetails();
+        speedDetails.addCurrentWorkout(new WorkoutDetails());
         createSpeeds();
         createGraph();
     }
@@ -91,19 +95,20 @@ public class RecordWorkoutHorizontalFragment extends Fragment {
     }
 
     private void createSpeeds(){
+        if(speedDetails == null) return;
         TextView speedView = (TextView) fragmentView.findViewById(R.id.avg_speed);
         float avgSpeed = 0.0f;
-        if(graphDetails.getTime().size() > 0){
-            avgSpeed = graphDetails.getSumSpeed()/graphDetails.getTime().size();
+        if(speedDetails.getTime().size() > 0){
+            avgSpeed = speedDetails.getSumSpeed()/speedDetails.getTime().size();
         }
         speedView.setText(StringUtils.getFormattedDistance(avgSpeed));
 
-        float minSpeed = (graphDetails.getMinSpeed() == Integer.MAX_VALUE) ? 0 : graphDetails.getMinSpeed();
+        float minSpeed = (speedDetails.getMinSpeed() == Integer.MAX_VALUE) ? 0 : speedDetails.getMinSpeed();
         speedView =(TextView) fragmentView.findViewById(R.id.min_speed);
         speedView.setText(StringUtils.getFormattedDistance(minSpeed));
 
         speedView = (TextView) fragmentView.findViewById(R.id.max_speed);
-        speedView.setText(StringUtils.getFormattedDistance(graphDetails.getMaxSpeed()));
+        speedView.setText(StringUtils.getFormattedDistance(speedDetails.getMaxSpeed()));
     }
 
 //    private long[] mTime = new long[] {0};
@@ -177,7 +182,7 @@ public class RecordWorkoutHorizontalFragment extends Fragment {
         if(width < 2400) width = 2400;
         mChart.setMinimumWidth((int)width);
         mChart.setData(data);
-        mChart.moveViewToX(count-barWidth/2);//mChart.getBarData().getEntryCount()+ + barWidth*graphDetails.getCaloriesEveryFiveMins().size());
+//        mChart.moveViewToX(count-barWidth/2);//mChart.getBarData().getEntryCount()+ + barWidth*graphDetails.getCaloriesEveryFiveMins().size());
 //        mChart.setFitBars(true);
         mChart.getXAxis().setAxisMinimum(barWidth/2);
         mChart.getXAxis().setAxisMaximum(count-barWidth/2);
@@ -196,11 +201,11 @@ public class RecordWorkoutHorizontalFragment extends Fragment {
         for (int index = 0; index < graphDetails.getStepsEveryFiveMins().size(); index++) {
             float shift = (index);// + 0.12f);
 //            float shift = (index == 0) ? (index) : (index + 0.5f);
-            entries.add(new Entry(shift, graphDetails.getStepsEveryFiveMins().get(index)/10));
+            entries.add(new Entry(shift, graphDetails.getStepsEveryFiveMins().get(index)/500));
         }
 
         int blue = Color.rgb(153,0,0);//Color.rgb(240, 238, 70)
-        LineDataSet set = new LineDataSet(entries, "(Steps Count)/10");
+        LineDataSet set = new LineDataSet(entries, "StepsCount/500" + minuteStr );
         set.setColor(blue);
         set.setLineWidth(2.5f);
         set.setCircleColor(blue);
@@ -231,7 +236,7 @@ public class RecordWorkoutHorizontalFragment extends Fragment {
         }
 
         int blue = Color.rgb(0,0,255);//Color.rgb(240, 238, 70)
-        LineDataSet set = new LineDataSet(entries, "Distance");
+        LineDataSet set = new LineDataSet(entries, "Distance" + minuteStr);
         set.setColor(blue);
         set.setLineWidth(2.5f);
         set.setCircleColor(blue);
@@ -272,7 +277,7 @@ public class RecordWorkoutHorizontalFragment extends Fragment {
         int green = Color.rgb(0, 100, 0);//Color.rgb(60, 220, 78);
         int green_light = Color.rgb(60, 220, 78);
 
-        BarDataSet caloriesBarDataSet = new BarDataSet(entries1, "Calories");
+        BarDataSet caloriesBarDataSet = new BarDataSet(entries1, "Calories"+ minuteStr);
         caloriesBarDataSet.setColor(green_light);
         caloriesBarDataSet.setValueTextColor(green);
         caloriesBarDataSet.setValueTextSize(10f);
@@ -296,10 +301,17 @@ public class RecordWorkoutHorizontalFragment extends Fragment {
                 case IntentFilterNames.GRAPH_DATA_RECEIVED:
                     graphDetails = (GraphDetails) intent.getSerializableExtra(IntentFilterNames.GRAPH_DATA);
 //                    Toast.makeText(context, "Intent detected => " + graphDetails.getTime().get((graphDetails.getTime().size()-1)), Toast.LENGTH_SHORT).show();
-                    createSpeeds();
+//                    createSpeeds();
 //                    updateGraphData();
                     createGraph();
                     break;
+
+                case IntentFilterNames.SPEED_DATA_RECEIVED:
+                    speedDetails = (GraphDetails) intent.getSerializableExtra(IntentFilterNames.SPEED_DATA);
+//                    Toast.makeText(context, "Intent detected => " + speedDetails.getMaxSpeed(), Toast.LENGTH_SHORT).show();
+                    createSpeeds();
+                    break;
+
                 default: break;
             }
         }
@@ -307,6 +319,7 @@ public class RecordWorkoutHorizontalFragment extends Fragment {
     private void registerBroadCastReceivers(){
         broadcastReceivers = new ArrayList<MyBroadcastReceiver>();
         createBroadcaseReceiver(IntentFilterNames.GRAPH_DATA_RECEIVED);
+        createBroadcaseReceiver(IntentFilterNames.SPEED_DATA_RECEIVED);
     }
     private void createBroadcaseReceiver(String intentName){
         MyBroadcastReceiver r = new MyBroadcastReceiver();

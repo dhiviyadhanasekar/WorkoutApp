@@ -54,6 +54,12 @@ public class WorkoutRemoteService extends Service implements LocationListener,
     WorkoutLocationPoints locationPoints;
     WorkoutDetails workout;
     GraphDetails graphDetails;
+    GraphDetails realtimeSpeedDetails;
+
+    private Double lastLatitude = null;
+    private Double lastLongitude = null;
+
+
 
     public WorkoutRemoteService() { }
 
@@ -127,6 +133,8 @@ public class WorkoutRemoteService extends Service implements LocationListener,
             i.putExtra(IntentFilterNames.LOCATION_DATA, pointsList);
         }
         sendBroadcast(i);
+        lastLatitude = latitude;
+        lastLongitude = longitude;
     }
 
     @Override
@@ -205,7 +213,7 @@ public class WorkoutRemoteService extends Service implements LocationListener,
         Intent intent = new Intent(IntentFilterNames.MIN_TIMER_RECIEVED);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_ONE_SHOT);
         AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
-        alarmManager.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + (10 * 1000), pendingIntent);
+        alarmManager.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + (60 * 1000), pendingIntent);
     }
 
     private void handleSecondsTimer(){
@@ -218,6 +226,9 @@ public class WorkoutRemoteService extends Service implements LocationListener,
             );
             sendSecondsBroadcast(timetext, millis);
             workout.updateDuration(curTime);
+
+            realtimeSpeedDetails.addCurrentWorkout(workout);
+            sendSpeedDataBroadcast(realtimeSpeedDetails);
         }
         createNextAlarm();
     }
@@ -292,12 +303,42 @@ public class WorkoutRemoteService extends Service implements LocationListener,
                 }
             }
             @Override
-            public void sendGraphData() { if(recordingWorkout) { sendCurrentGraphData(); } }
+            public void sendGraphData() {
+                if(recordingWorkout && graphDetails.getTime().size() > 0) {
+                    sendGraphDataBroadcast(graphDetails);
+                    sendSpeedDataBroadcast(realtimeSpeedDetails);
+                } else {
+                    GraphDetails g = new GraphDetails();
+                    g.addCurrentWorkout(new WorkoutDetails());
+                    sendGraphDataBroadcast(g);
+                }
+            }
+            @Override
+            public void sendLocationData(){
+                Intent i = new Intent();
+                if(recordingWorkout==true && locationPoints != null && locationPoints.getLocationPoints().size() >0){
+                    i.setAction(IntentFilterNames.LOCATION_RECEIVED);
+                    i.putExtra(IntentFilterNames.LOCATION_DATA, locationPoints);
+                } else if(lastLatitude != null && lastLongitude != null){
+                    WorkoutLocationPoints pointsList = new WorkoutLocationPoints();
+                    pointsList.add(lastLatitude, lastLongitude);
+                    i.putExtra(IntentFilterNames.LOCATION_DATA, pointsList);
+                }
+                sendBroadcast(i);
+            };
         };
     }
     private void sendCurrentGraphData(){
         graphDetails.addCurrentWorkout(workout);
         sendGraphDataBroadcast(graphDetails);
+    }
+
+    private void sendSpeedDataBroadcast(GraphDetails graphData){
+        if(graphData == null) return;
+        Intent i = new Intent();
+        i.setAction(IntentFilterNames.SPEED_DATA_RECEIVED);
+        i.putExtra(IntentFilterNames.SPEED_DATA,graphData);
+        sendBroadcast(i);
     }
 
     private void sendGraphDataBroadcast(GraphDetails graphData){
@@ -321,6 +362,7 @@ public class WorkoutRemoteService extends Service implements LocationListener,
         if(locationPoints==null) locationPoints = new WorkoutLocationPoints();
         workout = new WorkoutDetails(workoutStartTime, DataExtractor.getUserData(getContentResolver()));//db.fetchUserDetails());
         graphDetails = new GraphDetails();
+        realtimeSpeedDetails = new GraphDetails();
         recordingWorkout = true;
     }
 
@@ -334,7 +376,9 @@ public class WorkoutRemoteService extends Service implements LocationListener,
         GraphDetails g = new GraphDetails();
         g.addCurrentWorkout(new WorkoutDetails());
         sendGraphDataBroadcast(g);
+        sendSpeedDataBroadcast(g);
         graphDetails = null;
+        realtimeSpeedDetails = null;
         workout = null;
     }
 

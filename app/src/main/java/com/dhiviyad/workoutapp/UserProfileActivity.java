@@ -61,8 +61,8 @@ public class UserProfileActivity extends AppCompatActivity {
         bindService();
         registerBroadCastReceivers();
 
-        UserDetails u = DataExtractor.getUserData(getContentResolver());
-        Toast.makeText(this, "Username => " + u.getWeight(), Toast.LENGTH_SHORT).show();
+//        UserDetails u = DataExtractor.getUserData(getContentResolver());
+//        Toast.makeText(this, "Username => " + u.getWeight(), Toast.LENGTH_SHORT).show();
 
     }
 

@@ -17,4 +17,5 @@ interface IWorkoutAidlInterface {
     void sendCurrentWorkoutData();
     void sendDistanceData();
     void sendGraphData();
+    void sendLocationData();
 }
